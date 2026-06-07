@@ -1,0 +1,151 @@
+/* Scrollbar */
+.scrollbar-thin::-webkit-scrollbar{width:5px}
+.scrollbar-thin::-webkit-scrollbar-track{background:transparent}
+.scrollbar-thin::-webkit-scrollbar-thumb{background:#374151;border-radius:3px}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover{background:#4b5563}
+*{scrollbar-width:thin;scrollbar-color:#374151 transparent}
+
+/* Sidebar collapse */
+#sidebar.collapsed{width:0;min-width:0;overflow:hidden;border:none}
+@media(max-width:1023px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-120%);box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar.collapsed{transform:translateX(-120%);width:inherit;min-width:inherit}
+}
+
+/* Phase nav */
+.phase-group{margin-bottom:2px}
+.phase-label{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:#d1d5db;transition:all .15s}
+.phase-label:hover{background:rgba(99,102,241,0.1);color:#fff}
+.phase-label .arrow{font-size:10px;margin-left:auto;transition:transform .25s;color:#6b7280}
+.phase-group.open>.phase-label .arrow{transform:rotate(90deg)}
+.phase-topics{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.phase-group.open>.phase-topics{max-height:600px}
+
+.topic-link{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 44px;font-size:13px;color:#9ca3af;cursor:pointer;border-radius:8px;transition:all .15s}
+.topic-link:hover{background:rgba(99,102,241,0.08);color:#e5e7eb}
+.topic-link.active{background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.15));color:#fff;box-shadow:inset 0 0 0 1px rgba(99,102,241,0.3)}
+.topic-link .topic-status{width:18px;height:18px;border-radius:50%;border:2px solid #4b5563;display:inline-flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .3s}
+.topic-link .topic-status.passed{background:#22c55e;border-color:#22c55e;color:#fff}
+.topic-link .topic-status.failed{background:#ef4444;border-color:#ef4444;color:#fff}
+.topic-link .topic-status.locked{opacity:0.3}
+.topic-link .topic-status.passed::after{content:"✓";font-weight:bold}
+.topic-link .topic-status.failed::after{content:"✗";font-weight:bold}
+
+/* Welcome */
+.text-gradient{background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Phase cards */
+.phase-card{background:rgba(30,27,46,0.6);backdrop-filter:blur(8px);border:1px solid rgba(75,85,99,0.3);border-radius:16px;padding:20px;cursor:pointer;transition:all .25s}
+.phase-card:hover{border-color:rgba(99,102,241,0.5);transform:translateY(-3px);box-shadow:0 12px 30px rgba(99,102,241,0.15)}
+.phase-card .card-icon{font-size:32px;margin-bottom:8px}
+.phase-card h3{font-weight:600;color:#f3f4f6;margin-bottom:2px}
+.phase-card p{font-size:13px;color:#6b7280}
+
+/* Lesson sections */
+.lesson-section{background:rgba(30,27,46,0.6);backdrop-filter:blur(8px);border:1px solid rgba(75,85,99,0.3);border-radius:16px;padding:28px;margin-bottom:20px}
+.lesson-section h2{font-size:20px;font-weight:700;color:#f3f4f6;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #374151}
+.lesson-section h3{font-size:16px;font-weight:600;color:#e5e7eb;margin:20px 0 8px}
+.lesson-section h3:first-child{margin-top:0}
+.lesson-section p{margin-bottom:12px;color:#d1d5db;font-size:14px;line-height:1.7}
+.lesson-section ul,.lesson-section ol{padding-left:20px;margin-bottom:12px}
+.lesson-section li{margin-bottom:6px;color:#d1d5db;font-size:14px;line-height:1.6}
+.lesson-section li>code,.lesson-section p>code{background:rgba(99,102,241,0.15);padding:2px 6px;border-radius:4px;font-size:13px;color:#a5b4fc;font-family:'Fira Code','Cascadia Code','Consolas',monospace}
+.lesson-section pre{background:#1a1a2e;border:1px solid #2d2d44;padding:16px 20px;border-radius:10px;overflow-x:auto;font-size:13px;line-height:1.6;margin:12px 0;font-family:'Fira Code','Cascadia Code','Consolas',monospace}
+.lesson-section pre code{background:none;color:#e2e8f0;padding:0;font-size:inherit}
+
+/* Exercises */
+.exercise{background:rgba(15,13,26,0.6);border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-top:16px}
+.exercise:first-child{margin-top:0}
+.exercise .ex-header{margin-bottom:10px}
+.exercise .ex-badge{font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;background:rgba(99,102,241,0.15);color:#818cf8;display:inline-block}
+.exercise .ex-badge.code-writing{background:rgba(34,197,94,0.15);color:#4ade80}
+.exercise .ex-badge.ordering{background:rgba(251,191,36,0.15);color:#fbbf24}
+.exercise .ex-badge.truefalse{background:rgba(168,85,247,0.15);color:#c084fc}
+.exercise .ex-badge.fill{background:rgba(59,130,246,0.15);color:#60a5fa}
+.exercise .ex-question{font-weight:500;margin-bottom:14px;font-size:15px;color:#e5e7eb;line-height:1.5}
+.exercise .ex-question code{background:rgba(99,102,241,0.15);padding:1px 5px;border-radius:4px;font-size:13px;color:#a5b4fc}
+
+/* MCQ */
+.ex-options{display:flex;flex-direction:column;gap:8px}
+.ex-options label{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #2d2d44;border-radius:10px;cursor:pointer;transition:all .15s;font-size:14px;color:#d1d5db}
+.ex-options label:hover{border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.06)}
+.ex-options input[type="radio"]{accent-color:#818cf8;width:16px;height:16px;flex-shrink:0}
+.ex-options label.selected{border-color:#6366f1;background:rgba(99,102,241,0.1);color:#fff}
+
+/* Input */
+.ex-input{width:100%;padding:10px 14px;border:1px solid #2d2d44;border-radius:10px;font-size:14px;font-family:'Fira Code','Cascadia Code','Consolas',monospace;background:#1a1a2e;color:#e2e8f0;transition:border-color .15s;outline:none}
+.ex-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+
+/* Ace Editor */
+.ace-editor-wrapper{border:1px solid #2d2d44;border-radius:10px;overflow:hidden}
+.ace-editor-wrapper .ace_editor{font-size:13px;line-height:1.6}
+.ace-editor-wrapper .ace-tm .ace_gutter{background:#1a1a2e;color:#6b7280}
+.ace-editor-wrapper .ace-tm .ace_print-margin{background:#2d2d44}
+
+/* Sortable */
+.sortable-list{list-style:none;padding:0;margin:0}
+.sortable-item{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;background:#1a1a2e;border:1px solid #2d2d44;border-radius:10px;cursor:grab;font-size:14px;color:#d1d5db;font-family:'Fira Code','Cascadia Code','Consolas',monospace;transition:all .15s;user-select:none}
+.sortable-item:hover{border-color:#4b5563;background:#1e1b2e}
+.sortable-item:active{cursor:grabbing}
+.sortable-item .drag-handle{color:#6b7280;font-size:14px;cursor:grab}
+.sortable-ghost{opacity:0.4;border-style:dashed;border-color:#6366f1}
+.sortable-chosen{background:rgba(99,102,241,0.1);border-color:#6366f1}
+
+/* True/False */
+.tf-buttons{display:flex;gap:12px}
+.tf-btn{padding:10px 28px;border:1px solid #2d2d44;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;background:#1a1a2e;color:#d1d5db}
+.tf-btn:hover{border-color:#4b5563}
+.tf-btn.selected-true{border-color:#22c55e;background:rgba(34,197,94,0.1);color:#4ade80}
+.tf-btn.selected-false{border-color:#ef4444;background:rgba(239,68,68,0.1);color:#f87171}
+
+/* Buttons */
+.ex-btn{padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;margin-top:14px}
+.ex-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 15px rgba(99,102,241,0.3)}
+.ex-btn:disabled{opacity:0.5;cursor:default}
+.ex-btn.outline-btn{background:transparent;border:1px solid #6366f1;color:#818cf8}
+.ex-btn.outline-btn:hover:not(:disabled){background:rgba(99,102,241,0.1)}
+
+/* Result */
+.ex-result{margin-top:12px;padding:14px 16px;border-radius:10px;font-size:14px;line-height:1.6;display:none}
+.ex-result.show{display:block}
+.ex-result.pass{background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2)}
+.ex-result.fail{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+.ex-result .ex-explanation{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-style:italic;font-size:13px;opacity:0.8}
+
+/* Toast */
+#toast.show{transform:translateY(0);opacity:1}
+#toast .toast-content{background:#1e1b2e;border:1px solid #374151;border-radius:12px;padding:14px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.4);font-size:14px;min-width:200px}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+@keyframes confetti-fall{0%{transform:translateY(-100vh) rotate(0deg)}100%{transform:translateY(100vh) rotate(720deg)}}
+.animate-fade-in{animation:fadeIn .4s ease forwards}
+.animate-slide-in{animation:slideIn .3s ease forwards}
+.animate-scale-in{animation:scaleIn .2s ease forwards}
+
+/* Quiz progress within exercise */
+.ex-progress{display:flex;gap:6px;margin-bottom:16px}
+.ex-progress .dot{width:10px;height:10px;border-radius:50%;background:#2d2d44;transition:all .3s}
+.ex-progress .dot.active{background:#6366f1;box-shadow:0 0 8px rgba(99,102,241,0.4)}
+.ex-progress .dot.done{background:#22c55e}
+.ex-progress .dot.wrong{background:#ef4444}
+
+/* Difficulty badges */
+.ex-diff-basic{color:#22c55e;font-size:12px}
+.ex-diff-intermediate{color:#f59e0b;font-size:12px}
+.ex-diff-advanced{color:#ef4444;font-size:12px}
+
+/* Source links hover */
+a[href][target="_blank"]:hover{filter:brightness(1.2)}
+
+/* Responsive */
+@media(max-width:640px){
+  .lesson-section{padding:16px}
+  .exercise{padding:14px}
+  .tf-buttons{flex-direction:column}
+  #phase-cards{grid-template-columns:1fr}
+  .ex-options label{font-size:13px;padding:8px 12px}
+}
