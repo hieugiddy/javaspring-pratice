@@ -169,7 +169,12 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Ký hiệu nào dùng trong Generics để đại diện kiểu không xác định?",options:["?","T","E","Tất cả đều đúng"],answer:3,explanation:"? (wildcard), T (Type), E (Element) đều dùng trong generics."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Method nào của Optional trả về giá trị hoặc ném exception?",options:["orElse()","orElseGet()","orElseThrow()","get()"],answer:2,explanation:"orElseThrow() trả về giá trị hoặc ném NoSuchElementException."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Optional.empty() tạo Optional ___ (rỗng/không rỗng)",expectedKeywords:["rỗng","empty","trống"],explanation:"Optional.empty() tạo Optional rỗng, không chứa giá trị."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Generic type parameter có thể là kiểu nguyên thuỷ (int, double)?",answer:false,explanation:"Generic chỉ hoạt động với reference types. Dùng Integer, Double thay thế."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Generic type parameter có thể là kiểu nguyên thuỷ (int, double)?",answer:false,explanation:"Generic chỉ hoạt động với reference types. Dùng Integer, Double thay thế."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết generic method dem so phan tu trong List",template:"public static <T> int count(List<T> list) {\n    \n}",checks:[{regex:/return/,hint:"Can return list.size()"},{regex:/list.size()/,hint:"Dung list.size()"}],explanation:"return list.size();"},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet generic method tra ve phan tu dau tien cua List",template:"public static <T> T getFirst(List<T> list) {\n    \n}",checks:[
+            {regex:/return/,hint:"Can return phan tu dau tien"},
+            {regex:/list\.get\s*\(/,hint:"Dung list.get(0)"}
+          ],explanation:"return list.get(0);"}
         ]
       },
       // --- Constructor Deep Dive ---
@@ -465,7 +470,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"File cấu hình dạng YAML có extension gì?",options:[".yaml",".yml","Cả A và B",".properties"],answer:2,explanation:"Cả .yaml và .yml đều được Spring Boot hỗ trợ."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation nào map prefix properties vào class?",options:["@Value","@ConfigurationProperties","@PropertySource","@EnableConfigurationProperties"],answer:1,explanation:"@ConfigurationProperties map nhóm properties vào class."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Kích hoạt profile 'dev': <code>spring.profiles.active=___</code>",expectedKeywords:["dev","dev\n","dev "],explanation:"spring.profiles.active=dev kích hoạt application-dev.properties."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"application.yml có độ ưu tiên cao hơn application.properties?",answer:false,explanation:".properties có độ ưu tiên cao hơn .yml nếu cùng cấu hình."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"application.yml có độ ưu tiên cao hơn application.properties?",answer:false,explanation:".properties có độ ưu tiên cao hơn .yml nếu cùng cấu hình."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet @ConfigurationProperties cho prefix app.datasource voi cac field url, username, password",template:"@ConfigurationProperties(prefix = \"app.datasource\")\n@Component\npublic class DatasourceProperties {\n    \n}",checks:[{regex:/private String/,hint:"Can khai bao field String"},{regex:/getUrl|getUsername/,hint:"Can getter cho cac field"}],explanation:"@ConfigurationProperties(prefix = \"app.datasource\") + private fields + getters/setters."}
         ]
       },
       // --- Bean Scopes ---
@@ -487,7 +493,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Scope mặc định của Spring bean là gì?",options:["prototype","singleton","request","session"],answer:1,explanation:"singleton — một instance cho toàn bộ Spring container."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation nào chạy sau khi bean được khởi tạo?",options:["@PreDestroy","@PostConstruct","@Bean","@Init"],answer:1,explanation:"@PostConstruct chạy sau khi dependency injection hoàn tất."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Scope tạo bean mới mỗi lần: <code>@Scope(\"___\")</code>",expectedKeywords:["prototype","prototype\"","prototype\")"],explanation:"prototype — mỗi lần getBean() trả về instance mới."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Singleton bean là thread-safe mặc định?",answer:false,explanation:"Singleton bean không tự động thread-safe. Cần tự đồng bộ nếu có shared state."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Singleton bean là thread-safe mặc định?",answer:false,explanation:"Singleton bean không tự động thread-safe. Cần tự đồng bộ nếu có shared state."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet bean @Scope prototype va mot bean singleton inject no",template:"@Component\n@Scope(\"prototype\")\npublic class MyPrototypeBean {\n    \n}\n\n@Component\npublic class MySingletonBean {\n    @Autowired\n    private ApplicationContext context;\n    \n    public void usePrototype() {\n        MyPrototypeBean bean = context.getBean(MyPrototypeBean.class);\n    }\n}",checks:[{regex:/@Scope/,hint:"Can @Scope(\"prototype\")"},{regex:/getBean/,hint:"Dung context.getBean() de lay prototype moi"}],explanation:"@Scope(\"prototype\") tao bean moi moi lan. Dung ApplicationContext.getBean() de lay prototype tu singleton."}
         ]
       },
       // --- Logging ---
@@ -506,7 +513,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Logging implementation mặc định của Spring Boot?",options:["Log4j","Logback","Java Util Logging","SLF4J"],answer:1,explanation:"Logback là implementation mặc định (SLF4J là facade)."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Level log nào thấp nhất?",options:["DEBUG","TRACE","INFO","ERROR"],answer:1,explanation:"TRACE < DEBUG < INFO < WARN < ERROR."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Annotation Lombok để có logger: <code>@___</code>",expectedKeywords:["Slf4j","Slf4j\n","@Slf4j"],explanation:"@Slf4j tự tạo field log cho class."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Dùng System.out.println() là best practice cho logging?",answer:false,explanation:"Không. Dùng Logger để có level, định dạng, và cấu hình linh hoạt."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Dùng System.out.println() là best practice cho logging?",answer:false,explanation:"Không. Dùng Logger để có level, định dạng, và cấu hình linh hoạt."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet Logger cho mot Service class va ghi log INFO khi create User",template:"import org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n@Service\npublic class UserService {\n    private static final Logger log = LoggerFactory.getLogger(UserService.class);\n    \n    public void createUser(String email) {\n        \n    }\n}",checks:[{regex:/log.info/,hint:"Dung log.info() de log"},{regex:/LoggerFactory/,hint:"Can LoggerFactory.getLogger()"}],explanation:"log.info(\"Creating user: {}\", email);"}
         ]
       },
       // --- Spring Framework Expert ---
@@ -685,7 +693,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"File migration Flyway đặt trong thư mục nào?",options:["src/main/resources/db/migration/","src/main/java/db/migration/","db/migration/","src/main/resources/flyway/"],answer:0,explanation:"Mặc định: src/main/resources/db/migration/."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Bảng nào Flyway dùng để theo dõi migration đã chạy?",options:["flyway_schema","flyway_history","flyway_schema_history","schema_history"],answer:2,explanation:"flyway_schema_history ghi lại lịch sử migration."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Tên file migration version 1: <code>___1___create_users.sql</code>",expectedKeywords:["V1__","V"],explanation:"Format: V{version}__{description}.sql"},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Flyway tự động chạy lại migration nếu file SQL bị sửa?",answer:false,explanation:"Flyway chỉ chạy migration một lần. Không tự chạy lại nếu file thay đổi."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Flyway tự động chạy lại migration nếu file SQL bị sửa?",answer:false,explanation:"Flyway chỉ chạy migration một lần. Không tự chạy lại nếu file thay đổi."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet migration V2 them column phone vao bang users",template:"-- V2__add_phone_to_users.sql\nALTER TABLE users\n    ADD COLUMN phone VARCHAR(20);",language:"sql",checks:[{regex:/ALTER TABLE/,hint:"Can ALTER TABLE"},{regex:/ADD COLUMN/,hint:"Can ADD COLUMN"}],explanation:"ALTER TABLE users ADD COLUMN phone VARCHAR(20);"}
         ]
       },
       // --- Transaction ---
@@ -706,7 +715,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation quản lý transaction trong Spring?",options:["@Transaction","@Transactional","@Transact","@TransactionManagement"],answer:1,explanation:"@Transactional quản lý transaction cho method/class."},
           {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Propagation mặc định của @Transactional là gì?",options:["REQUIRES_NEW","REQUIRED","NESTED","SUPPORTS"],answer:1,explanation:"REQUIRED — dùng transaction hiện tại, tạo mới nếu không có."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Chế độ chỉ đọc: <code>@Transactional(___ = true)</code>",expectedKeywords:["readOnly","readOnly ","readOnly = true"],explanation:"readOnly = true tối ưu cho truy vấn, không cần flush."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"@Transactional tự động rollback khi gặp checked exception?",answer:false,explanation:"Mặc định chỉ rollback cho RuntimeException và Error. Cần cấu hình rollbackFor cho checked exception."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"@Transactional tự động rollback khi gặp checked exception?",answer:false,explanation:"Mặc định chỉ rollback cho RuntimeException và Error. Cần cấu hình rollbackFor cho checked exception."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet method co @Transactional createOrder xu ly 2 save: order va payment",template:"@Service\n@Transactional\npublic class OrderService {\n    \n    public Order createOrder(CreateOrderRequest req) {\n        // luu order\n        // luu payment\n        // neu loi, rollback ca 2\n    }\n}",checks:[{regex:/@Transactional/,hint:"Can @Transactional"},{regex:/orderRepo.save|paymentRepo.save/,hint:"Can goi repository save"}],explanation:"@Transactional dam bao 2 save cung 1 transaction, rollback neu co loi."}
         ]
       },
       // --- Caching ---
@@ -727,7 +737,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation bật caching trong Spring?",options:["@Cacheable","@EnableCaching","@CacheConfig","@Caching"],answer:1,explanation:"@EnableCaching đặt ở @Configuration class để bật caching."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation nào cache kết quả method?",options:["@Cacheable","@CacheEvict","@CachePut","@Caching"],answer:0,explanation:"@Cacheable cache kết quả, dùng cache cho lần gọi sau."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Xoá toàn bộ cache: <code>@CacheEvict(all___ = true)</code>",expectedKeywords:["Entries","Entries ","Entries = true"],explanation:"allEntries = true xoá tất cả entries trong cache."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Spring Cache mặc định dùng Redis?",answer:false,explanation:"Spring Cache mặc định dùng ConcurrentHashMap (ConcurrentMapCacheManager)."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Spring Cache mặc định dùng Redis?",answer:false,explanation:"Spring Cache mặc định dùng ConcurrentHashMap (ConcurrentMapCacheManager)."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet service dung @Cacheable de cache ket qua findById",template:"@Service\npublic class UserService {\n    @Cacheable(value = \"users\", key = \"#id\")\n    public User findById(Long id) {\n        return userRepo.findById(id).orElseThrow();\n    }\n    \n    @CacheEvict(value = \"users\")\n    public void clearCache() {\n    }\n}",checks:[{regex:/@Cacheable/,hint:"Can @Cacheable"},{regex:/@CacheEvict/,hint:"Can @CacheEvict de xoa cache"}],explanation:"@Cacheable(\"users\") cache ket qua. @CacheEvict xoa cache khi can refresh."}
         ]
       },
       // --- Database Deep Dive ---
@@ -893,7 +904,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation bật method-level security?",options:["@EnableSecurity","@EnableMethodSecurity","@EnableGlobalMethodSecurity","@MethodSecurity"],answer:1,explanation:"@EnableMethodSecurity (Spring Security 6+)."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation kiểm tra quyền trước khi method chạy?",options:["@PostAuthorize","@Secured","@PreAuthorize","@RolesAllowed"],answer:2,explanation:"@PreAuthorize kiểm tra trước khi method được gọi."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Kiểm tra role ADMIN: <code>@PreAuthorize(\"___\")</code>",expectedKeywords:["hasRole('ADMIN')","hasRole('ADMIN')\"","hasRole(\"ADMIN\")"],explanation:"hasRole('ADMIN') kiểm tra role ADMIN."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"@PostAuthorize kiểm tra quyền sau khi method chạy?",answer:true,explanation:"@PostAuthorize kiểm tra sau khi method thực thi, dùng returnObject để kiểm tra."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"@PostAuthorize kiểm tra quyền sau khi method chạy?",answer:true,explanation:"@PostAuthorize kiểm tra sau khi method thực thi, dùng returnObject để kiểm tra."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet AdminController voi @PreAuthorize kiem tra role ADMIN",template:"@RestController\n@RequestMapping(\"/api/admin\")\npublic class AdminController {\n    @GetMapping(\"/users\")\n    @PreAuthorize(\"hasRole('ADMIN')\")" + '\n' + "    public List<User> getAllUsers() {\n        return userService.findAll();\n    }\n}",checks:[{regex:/@PreAuthorize/,hint:"Can @PreAuthorize"},{regex:/hasRole/,hint:"Dung hasRole('ADMIN')"}],explanation:"@PreAuthorize(\"hasRole('ADMIN')\") chi cho phep ADMIN truy cap."}
         ]
       },
       // --- Validation ---
@@ -1108,7 +1120,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Docker image cơ bản cho Spring Boot nên dùng?",options:["openjdk:17","eclipse-temurin:17-jre-alpine","adoptopenjdk:17","java:17"],answer:1,explanation:"eclipse-temurin:17-jre-alpine — nhẹ (alpine), an toàn, phổ biến."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Lệnh build Docker image?",options:["docker build","docker run","docker compose","docker create"],answer:0,explanation:"docker build -t my-app . — build image từ Dockerfile."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Copy JAR vào image: <code>___ target/*.jar app.jar</code>",expectedKeywords:["COPY","COPY ","COPY "],explanation:"COPY instruction copy file từ host vào image."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"docker-compose dùng để chạy nhiều container cùng lúc?",answer:true,explanation:"Docker Compose quản lý multi-container ứng dụng (app + database + redis...)."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"docker-compose dùng để chạy nhiều container cùng lúc?",answer:true,explanation:"Docker Compose quản lý multi-container ứng dụng (app + database + redis...)."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet docker-compose.yml voi app Spring Boot + PostgreSQL",template:"version: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - \"8080:8080\"\n    environment:\n      - DATABASE_URL=jdbc:postgresql://db:5432/myapp\n    depends_on:\n      - db\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: myapp\n      POSTGRES_PASSWORD: secret",language:"yml",checks:[{regex:/services:/,hint:"Can services:"},{regex:/image: postgres/,hint:"Can db voi image postgres"}],explanation:"docker-compose.yml dinh nghia app + db, app depends_on db."}
         ]
       },
       // --- Actuator ---
@@ -1129,7 +1142,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Actuator endpoint kiểm tra ứng dụng sống?",options:["/actuator/info","/actuator/health","/actuator/ping","/actuator/status"],answer:1,explanation:"/actuator/health trả về UP/DOWN status."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Config expose tất cả actuator endpoints?",options:["include: *","include: all","include: '*'","expose: all"],answer:2,explanation:"include: '*' expose tất cả endpoints (⚠️ chỉ dùng trong dev)."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Dependency cho Actuator: <code>spring-boot-starter-___</code>",expectedKeywords:["actuator","actuator\n"],explanation:"spring-boot-starter-actuator thêm Actuator vào project."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Actuator có thể thay đổi log level runtime?",answer:true,explanation:"POST /actuator/loggers/{package} với body {\"configuredLevel\": \"DEBUG\"}."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Actuator có thể thay đổi log level runtime?",answer:true,explanation:"POST /actuator/loggers/{package} với body {\"configuredLevel\": \"DEBUG\"}."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Cau hinh actuator expose health + info, show-details always",template:"management:\\n  endpoints:\\n    web:\\n      exposure:\\n        include: health,info\\n  endpoint:\\n    health:\\n      show-details: always",language:"yml",checks:[{regex:/exposure/,hint:"Can management.endpoints.web.exposure"},{regex:/show-details/,hint:"Can health show-details"}],explanation:"management.endpoints.web.exposure.include: health,info + show-details: always."}
         ]
       },
       // --- Swagger & Deploy ---
@@ -1378,7 +1392,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Event khác Command ở điểm nào?",options:["Event nhanh hơn","Event không mong đợi response","Command không có dữ liệu","Event chỉ dùng cho Kafka"],answer:1,explanation:"Event thông báo việc đã xảy ra, không mong đợi phản hồi. Command mong đợi kết quả."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"EDA giúp các service ___ với nhau?",options:["Liên kết chặt","Liên kết lỏng (loosely coupled)","Không giao tiếp","Giao tiếp đồng bộ"],answer:1,explanation:"EDA: service giao tiếp qua events bất đồng bộ → loose coupling."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"EDA viết tắt của: Event-___ Architecture",expectedKeywords:["Driven","Driven\n"],explanation:"Event-Driven Architecture."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"EDA luôn đảm bảo tính nhất quán tức thời (strong consistency)?",answer:false,explanation:"EDA thường dùng eventual consistency — dữ liệu có độ trễ mới đồng bộ."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"EDA luôn đảm bảo tính nhất quán tức thời (strong consistency)?",answer:false,explanation:"EDA thường dùng eventual consistency — dữ liệu có độ trễ mới đồng bộ."},
+          {type:"order",difficulty:"advanced",badge:"Sắp xếp",question:"Sap xep luong EDA khi User dang ky:",items:["User gui POST /signup","UserService xu ly, emit UserCreatedEvent","Kafka nhan event, publish den consumer","EmailService gui email welcome","AnalyticsService ghi log"],answer:[0,1,2,3,4],explanation:"User action -> emit event -> Kafka -> EmailService + AnalyticsService."}
         ]
       },
       // --- Apache Kafka ---
@@ -1436,7 +1451,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Event Sourcing lưu gì thay vì lưu trạng thái hiện tại?",options:["Chỉ log lỗi","Toàn bộ lịch sử thay đổi dạng events","Cache dữ liệu","Snapshot database"],answer:1,explanation:"Event Sourcing lưu chuỗi events — mỗi event là một thay đổi trạng thái."},
           {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Làm thế nào để biết trạng thái hiện tại trong Event Sourcing?",options:["Đọc từ database","Replay tất cả events","Gọi API khác","Dùng cache"],answer:1,explanation:"Replay tất cả events từ đầu → tính toán trạng thái hiện tại."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Khi nào dùng Event Sourcing? Khi cần ___ trail đầy đủ.",expectedKeywords:["audit","audit\n","Audit"],explanation:"Event Sourcing cung cấp audit trail đầy đủ — mọi thay đổi đều được ghi lại."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Event Sourcing có thể rollback đến bất kỳ thời điểm nào?",answer:true,explanation:"Đúng — chỉ cần replay events đến thời điểm mong muốn."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Event Sourcing có thể rollback đến bất kỳ thời điểm nào?",answer:true,explanation:"Đúng — chỉ cần replay events đến thời điểm mong muốn."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"Event Sourcing khac traditional CRUD o diem nao?",options:["Traditional luu state hien tai, ES luu lich su event","ES nhanh hon","CRUD luu event, ES luu state","Giong nhau"],answer:0,explanation:"Traditional: UPDATE ghi de gia tri. ES: luu moi event, state = replay events."}
         ]
       },
       // --- CQRS ---
@@ -1462,7 +1478,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"CQRS tách riêng 2 model nào?",options:["Controller và Service","Command và Query","Entity và DTO","Sync và Async"],answer:1,explanation:"CQRS = Command (write) + Query (read) riêng biệt."},
           {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"CQRS thường kết hợp với pattern nào?",options:["Singleton","Factory","Event Sourcing","Proxy"],answer:2,explanation:"CQRS + Event Sourcing: events từ write model cập nhật read model."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Read model có thể scale ___ so với write model.",expectedKeywords:["riêng","độc lập","khác"],explanation:"Read và write model scale độc lập — read có thể nhiều instance hơn."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Trong CQRS, read model luôn consistent ngay với write model?",answer:false,explanation:"CQRS thường dùng eventual consistency — read model cập nhật sau write."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Trong CQRS, read model luôn consistent ngay với write model?",answer:false,explanation:"CQRS thường dùng eventual consistency — read model cập nhật sau write."},
+          {type:"order",difficulty:"advanced",badge:"Sắp xếp",question:"Sap xep luong CQRS + Event Sourcing:",items:["Client gui Command (CREATE Order)","Command xu ly, luu event","Event duoc publish","Event handler cap nhat Read Model","Client query Read Model"],answer:[0,1,2,3,4],explanation:"Command -> Event Store -> Publish -> Read Model update -> Query."}
         ]
       },
       // --- Saga Pattern ---
@@ -1723,7 +1740,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"RSocket hỗ trợ mấy mô hình tương tác?",options:["2","3","4","5"],answer:2,explanation:"4 models: Request-Response, Request-Stream, Fire-and-Forget, Channel."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Fire-and-Forget khác Request-Response thế nào?",options:["Fire-and-Forget nhanh hơn","Fire-and-Forget không trả về response, không chờ","Fire-and-Forget dùng TCP","Giống nhau"],answer:1,explanation:"Fire-and-Forget: gửi message, không cần response → thông lượng cao hơn."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"RSocket hỗ trợ bidirectional stream: ___",expectedKeywords:["Channel","channel","Channel model"],explanation:"Channel — cả 2 phía gửi/nhận độc lập trên một kết nối."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"RSocket có thể push dữ liệu từ server mà không cần client request?",answer:true,explanation:"RSocket hỗ trợ server push — không cần polling hay WebSocket."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"RSocket có thể push dữ liệu từ server mà không cần client request?",answer:true,explanation:"RSocket hỗ trợ server push — không cần polling hay WebSocket."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"RSocket Channel khac Request-Stream the nao?",options:["Channel 2 chieu, Request-Stream 1 chieu","Giong nhau","Channel nhanh hon","Request-Stream 2 chieu"],answer:0,explanation:"Channel: bidirectional stream - ca 2 phia gui va nhan. Request-Stream: 1 message -> stream response."}
         ]
       }
     ]
@@ -1793,7 +1811,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Testcontainers yêu cầu gì trên máy?",options:["Java 21","Docker","Maven","Linux"],answer:1,explanation:"Testcontainers cần Docker Engine để chạy containers trong test."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation khởi tạo container?",options:["@TestContainer","@Container","@DockerContainer","@TestcontainersInit"],answer:1,explanation:"@Container — khởi tạo static container chung cho tất cả test."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Cập nhật properties từ container: <code>@___PropertySource</code>",expectedKeywords:["Dynamic","@DynamicPropertySource","DynamicPropertySource"],explanation:"@DynamicPropertySource override properties từ container (JDBC URL, credentials)."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Testcontainers tự động dọn container sau test?",answer:true,explanation:"Testcontainers tự động stop và xoá container sau khi test class kết thúc."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Testcontainers tự động dọn container sau test?",answer:true,explanation:"Testcontainers tự động stop và xoá container sau khi test class kết thúc."},
+          {type:"order",difficulty:"advanced",badge:"Sắp xếp",question:"Sap xep cac buoc dung Testcontainers:",items:["Them @Testcontainers annotation","Khai bao @Container static PostgreSQLContainer","Them @DynamicPropertySource override datasource","Viet test goi repository","Container tu dong stop sau test"],answer:[0,1,2,3,4],explanation:"@Testcontainers -> @Container -> @DynamicPropertySource -> test -> auto cleanup."}
         ]
       },
       // --- WireMock ---
@@ -1818,7 +1837,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"WireMock dùng để làm gì?",options:["Mock database","Mock HTTP API","Generate test data","Measure performance"],answer:1,explanation:"WireMock mock HTTP server — giả lập REST API cho integration test."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Stub trong WireMock là gì?",options:["Test data","Endpoint giả lập + response mong đợi","Container Docker","Mock object"],answer:1,explanation:"Stub = request matcher + response definition (status, headers, body)."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Cấu hình WireMock port tự động: <code>@AutoConfigureWireMock(___ = 0)</code>",expectedKeywords:["port","port\n"],explanation:"@AutoConfigureWireMock(port = 0) — random port, tránh conflict."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"WireMock chỉ dùng cho Spring Boot?",answer:false,explanation:"WireMock là standalone HTTP server — dùng được với bất kỳ framework nào."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"WireMock chỉ dùng cho Spring Boot?",answer:false,explanation:"WireMock là standalone HTTP server — dùng được với bất kỳ framework nào."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Dung WireMock de stub mot API tra ve 200 voi JSON body",template:"stubFor(get(urlEqualTo(\"/api/users/1\"))\n    .willReturn(aResponse()\n        .withStatus(200)\n        .withHeader(\"Content-Type\", \"application/json\")\n        .withBody(\"{\\\"name\\\":\\\"Alice\\\"}\")\n    ));",checks:[{regex:/stubFor/,hint:"Can stubFor()"},{regex:/withStatus/,hint:"Can withStatus(200)"}],explanation:"stubFor(...) -> willReturn(aResponse() -> withStatus(200) -> withBody(...));"}
         ]
       },
       // --- ArchUnit ---
@@ -1844,7 +1864,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"ArchUnit dùng để kiểm tra gì?",options:["Code coverage","Kiến trúc package và dependency","Database migration","API performance"],answer:1,explanation:"ArchUnit kiểm tra cấu trúc package, dependency giữa các layer, naming convention."},
           {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Annotation nào phân tích packages cho ArchUnit?",options:["@PackageScan","@AnalyzeClasses","@ArchTest","@ArchitectureScan"],answer:1,explanation:"@AnalyzeClasses(packages = \"com.example\") — quét package để kiểm tra rules."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Static rule trong ArchUnit dùng annotation: <code>@___</code>",expectedKeywords:["ArchTest","@ArchTest"],explanation:"@ArchTest — đánh dấu ArchRule static field."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"ArchUnit có thể phát hiện cyclic dependency giữa packages?",answer:true,explanation:"slices().matching(\"..(*)..\").should().beFreeOfCycles() — phát hiện cycle."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"ArchUnit có thể phát hiện cyclic dependency giữa packages?",answer:true,explanation:"slices().matching(\"..(*)..\").should().beFreeOfCycles() — phát hiện cycle."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viet ArchUnit kiem tra Service chi duoc goi tu Controller hoac Service khac",template:"@ArchTest\nstatic final ArchRule serviceRule = classes()\n    .that().resideInAPackage(\"..service..\")\n    .should().onlyBeAccessed()\n        .byClassesThat().resideInAnyPackage(\"..controller..\", \"..service..\");",checks:[{regex:/@ArchTest/,hint:"Can @ArchTest"},{regex:/resideInAPackage/,hint:"Can resideInAPackage"}],explanation:"classes().that().resideInAPackage(\"..service..\").should().onlyBeAccessed().byClassesThat().resideInAnyPackage(\"..controller..\", \"..service..\");"}
         ]
       },
       // --- Performance Test ---
@@ -1876,7 +1897,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Load Test kiểm tra gì?",options:["Tải vượt giới hạn","Tải trung bình/dự kiến","Thời gian dài","Bảo mật"],answer:1,explanation:"Load Test: kiểm tra với tải mong đợi trong production."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Công cụ nào dùng JavaScript để viết test?",options:["JMeter","Gatling","k6","JMH"],answer:2,explanation:"k6 dùng JavaScript, modern, dễ tích hợp CI/CD."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Java benchmark framework: ___ (viết tắt)",expectedKeywords:["JMH","JMH\n"],explanation:"JMH = Java Microbenchmark Harness (OpenJDK)."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Stress Test kiểm tra điểm sụp đổ của hệ thống?",answer:true,explanation:"Stress Test tăng dần tải đến khi hệ thống fail — tìm breaking point."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Stress Test kiểm tra điểm sụp đổ của hệ thống?",answer:true,explanation:"Stress Test tăng dần tải đến khi hệ thống fail — tìm breaking point."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"JMH dung de lam gi?",options:["Load test toan bo he thong","Benchmark method-level performance","Kiem tra security","Generate test data"],answer:1,explanation:"JMH (Java Microbenchmark Harness) benchmark method-level performance trong Java."}
         ]
       }
     ]
@@ -1913,7 +1935,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Multi-stage build giúp gì?",options:["Tăng tốc build","Giảm kích thước image","Tăng bảo mật","Tất cả"],answer:3,explanation:"Multi-stage build: tách build và runtime → image nhỏ hơn, an toàn hơn, build nhanh."},
           {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"HEALTHCHECK trong Dockerfile dùng để làm gì?",options:["Kiểm tra license","Kiểm tra service còn sống","Update container","Scale container"],answer:1,explanation:"HEALTHCHECK — Docker kiểm tra định kỳ service còn hoạt động."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"depends_on condition sẵn sàng: <code>condition: service____</code>",expectedKeywords:["healthy","healthy\n"],explanation:"condition: service_healthy — chỉ start app khi db healthcheck pass."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Docker Compose dùng để chạy 1 container duy nhất?",answer:false,explanation:"Docker Compose chuyên cho multi-container. Docker run cho single container."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Docker Compose dùng để chạy 1 container duy nhất?",answer:false,explanation:"Docker Compose chuyên cho multi-container. Docker run cho single container."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"Tại sao nen dung multi-stage build trong Docker?",options:["Giam kich thuoc image, tach build vs runtime","Tang toc do build","Giam so container","Tang bao mat"],answer:0,explanation:"Multi-stage: stage 1 build (Maven + JDK day du), stage 2 runtime (JRE nhe)."}
         ]
       },
       // --- GitHub Actions ---
@@ -1988,7 +2011,8 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"IaC viết tắt của?",options:["Infrastructure as Code","Integration as Code","Interface as Code","Infrastructure as Configuration"],answer:0,explanation:"Infrastructure as Code — quản lý hạ tầng bằng code."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Lệnh Terraform tạo resources?",options:["terraform init","terraform plan","terraform apply","terraform destroy"],answer:2,explanation:"terraform apply — thực thi và tạo resources."},
           {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Xem preview thay đổi: <code>terraform ___</code>",expectedKeywords:["plan","plan\n"],explanation:"terraform plan — xem thay đổi trước khi apply (dry-run)."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Terraform state file nên commit lên Git?",answer:false,explanation:"State file chứa secrets và mapping resources — nên lưu ở remote backend (S3, Terraform Cloud)."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Terraform state file nên commit lên Git?",answer:false,explanation:"State file chứa secrets và mapping resources — nên lưu ở remote backend (S3, Terraform Cloud)."},
+          {type:"order",difficulty:"advanced",badge:"Sắp xếp",question:"Sap xep Terraform workflow:",items:["terraform init (khoi tao provider)","terraform plan (xem preview)","terraform apply (tao resources)","terraform destroy (xoa resources)"],answer:[0,1,2,3],explanation:"init -> plan -> apply -> destroy. Luon chay plan truoc apply de kiem tra thay doi."}
         ]
       },
       // --- Monitoring & Observability ---
