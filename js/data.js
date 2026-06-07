@@ -948,7 +948,16 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"OAuth2 flow phổ biến cho web app?",options:["Implicit Flow","Authorization Code Flow","Client Credentials Flow","Resource Owner Flow"],answer:1,explanation:"Authorization Code Flow — an toàn nhất cho web apps."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Spring Boot dùng dependency nào cho OAuth2 client?",options:["spring-boot-starter-security","spring-boot-starter-oauth2-client","spring-security-oauth2","spring-social"],answer:1,explanation:"spring-boot-starter-oauth2-client hỗ trợ social login."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Spring Security class lấy thông tin user OAuth2: <code>OAuth2___</code>",expectedKeywords:["User","User","User "],explanation:"OAuth2User — chứa thông tin user từ OAuth2 provider."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"OAuth2 là giao thức authentication (xác thực)?",answer:false,explanation:"OAuth2 là giao thức authorization (uỷ quyền), nhưng thường dùng để xác thực qua social login."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"OAuth2 là giao thức authentication (xác thực)?",answer:false,explanation:"OAuth2 là giao thức authorization (uỷ quyền), nhưng thường dùng để xác thực qua social login."},
+          // --- Bổ sung thêm bài tập cho Phase 4 ---
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"Sự khác biệt giữa Authentication và Authorization?",options:["Giống nhau","AuthN =你是谁, AuthZ = bạn được làm gì","AuthN = bạn được làm gì, AuthZ =你是谁","Không liên quan"],answer:1,explanation:"Authentication (xác thực): kiểm tra danh tính. Authorization (phân quyền): kiểm tra quyền truy cập."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"CORS là viết tắt của?",options:["Cross-Origin Resource Sharing","Cross-Origin Request Security","Cross-Site Request Forgery","Cross-Origin Resource Security"],answer:0,explanation:"CORS = Cross-Origin Resource Sharing — cho phép domain khác gọi API."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết Global Exception Handler trả về 400 cho validation error",template:"@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    \n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {\n        \n    }\n}",
+          checks:[
+            {regex:/RestControllerAdvice/,hint:"Cần @RestControllerAdvice"},
+            {regex:/ExceptionHandler/,hint:"Cần @ExceptionHandler"},
+            {regex:/fieldError|getFieldErrors|getDefaultMessage/,hint:"Lấy field errors từ binding result"}
+          ],explanation:"@RestControllerAdvice + @ExceptionHandler(MethodArgumentNotValidException.class) + getFieldErrors() map."}
         ]
       }
     ]
@@ -1284,7 +1293,55 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Circuit Breaker trạng thái nào cho phép request đi qua bình thường?",options:["OPEN","CLOSED","HALF_OPEN","DISABLED"],answer:1,explanation:"CLOSED — mạch đóng, request đi qua bình thường."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation của Resilience4j cho retry?",options:["@CircuitBreaker","@Retry","@RateLimiter","@Bulkhead"],answer:1,explanation:"@Retry tự động gọi lại method khi thất bại."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Fallback method phải có tham số cuối là ___",expectedKeywords:["Throwable","Throwable t","Throwable","Exception"],explanation:"Fallback method nhận exception làm tham số cuối để xử lý."},
-          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Circuit Breaker chỉ áp dụng cho HTTP calls?",answer:false,explanation:"Circuit Breaker áp dụng cho bất kỳ loại call nào (HTTP, database, message queue...)."}
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Circuit Breaker chỉ áp dụng cho HTTP calls?",answer:false,explanation:"Circuit Breaker áp dụng cho bất kỳ loại call nào (HTTP, database, message queue...)."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"@Retry dùng khi nào?",options:["Khi service luôn down","Khi lỗi tạm thời có thể tự phục hồi","Khi request quá nhiều","Khi timeout"],answer:1,explanation:"Retry cho lỗi tạm thời (network glitch, timeout). Nếu service down thật, circuit breaker sẽ mở."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"@RateLimiter dùng để làm gì?",options:["Tăng tốc độ request","Giới hạn số request trong khoảng thời gian","Phân phối request","Chặn request"],answer:1,explanation:"RateLimiter giới hạn số request/giây — tránh quá tải cho hệ thống."},
+          {type:"fill",difficulty:"advanced",badge:"Vận dụng cao",question:"Resilience4j annotation giới hạn concurrent calls: <code>@___</code>",expectedKeywords:["Bulkhead","@Bulkhead"],explanation:"@Bulkhead — giới hạn số concurrent calls (thread pool hoặc semaphore)."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết service có CircuitBreaker gọi inventory-service để kiểm tra stock",template:"@Service\npublic class InventoryService {\n    @CircuitBreaker(name = \"inventory\", fallbackMethod = \"fallback\")\n    public boolean checkStock(String sku, int qty) {\n        // gọi inventory-service API\n    }\n    \n    public boolean fallback(String sku, int qty, Throwable t) {\n        return false;\n    }\n}",
+          checks:[
+            {regex:/@CircuitBreaker/,hint:"Cần @CircuitBreaker"},
+            {regex:/fallback/,hint:"Cần fallbackMethod"},
+            {regex:/Throwable/,hint:"Fallback method cần tham số Throwable"}
+          ],explanation:"@CircuitBreaker(name=\"inventory\", fallbackMethod=\"fallback\") + method fallback cùng kiểu trả về."}
+        ]
+      },
+
+      // --- Distributed Tracing & Logging ---
+      {
+        id:"p6-tracing",title:"Distributed Tracing & Centralized Logging",
+        sources:[
+          {name:"ELK Stack Docs",url:"https://www.elastic.co/guide/index.html"},
+          {name:"Baeldung — Spring Cloud Sleuth",url:"https://www.baeldung.com/spring-cloud-sleuth"},
+          {name:"Micrometer Tracing Docs",url:"https://micrometer.io/docs/tracing"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Distributed Tracing</b> — theo dõi một request xuyên qua nhiều microservices."},
+          {type:"p",text:"<b>Spring Cloud Sleuth</b> (cũ) → <b>Micrometer Tracing</b> (mới, Spring Boot 3.x):"},
+          {type:"ul",items:[
+            "Tự động thêm traceId và spanId vào log.",
+            "Gửi trace data đến Zipkin, Jaeger, hoặc OpenTelemetry.",
+            "TraceId xuyên suốt các service — dễ debug."
+          ]},
+          {type:"p",text:"<b>Centralized Logging với ELK:</b>"},
+          {type:"ul",items:[
+            "<b>Elasticsearch</b>: lưu trữ và search logs.",
+            "<b>Logstash</b>: thu thập và xử lý logs.",
+            "<b>Kibana</b>: dashboard và visualization.",
+            "Filebeat: gửi log file từ service đến Logstash/Elasticsearch."
+          ]},
+          {type:"code",text:"# Logback — JSON format cho Logstash\n<appender name=\"LOGSTASH\" class=\"net.logstash.logback.appender.LogstashTcpSocketAppender\">\n    <destination>localhost:5000</destination>\n    <encoder class=\"net.logstash.logback.encoder.LogstashEncoder\"/>\n</appender>\n\n<root level=\"INFO\">\n    <appender-ref ref=\"CONSOLE\"/>\n    <appender-ref ref=\"LOGSTASH\"/>\n</root>\n\n# Micrometer Tracing — application.yml\nmanagement:\n  tracing:\n    sampling:\n      probability: 1.0  # 100% samples — giảm xuống 0.1 cho production\n  zipkin:\n    tracing:\n      endpoint: http://zipkin:9411/api/v2/spans"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"TraceId giúp gì trong microservices?",options:["Tăng tốc độ","Theo dõi request xuyên suốt nhiều service","Giảm memory","Tự động fix lỗi"],answer:1,explanation:"TraceId đi cùng request qua tất cả service — ghép log lại để debug."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"ELK Stack gồm những gì?",options:["Elasticsearch, Logstash, Kibana","Elastic, Linux, Kafka","Eclipse, Lombok, Kotlin","Eureka, LoadBalancer, Kafka"],answer:0,explanation:"ELK = Elasticsearch (lưu) + Logstash (thu thập) + Kibana (visualize)."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Spring Boot 3.x tracing: <code>___ Tracing</code>",expectedKeywords:["Micrometer","Micrometer\n"],explanation:"Micrometer Tracing — thay thế Spring Cloud Sleuth (deprecated)."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Distributed tracing chỉ dùng cho microservices?",answer:true,explanation:"Đúng — tracing cần thiết khi request đi qua nhiều service. Monolithic không cần."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Cấu hình prometheus metrics và Micrometer tracing cho Spring Boot",template:"management:\n  endpoints:\n    web:\n      exposure:\n        include: health,info,metrics,prometheus\n  tracing:\n    sampling:\n      ___",
+          language:"yml",
+          checks:[
+            {regex:/sampling/,hint:"Cần cấu hình sampling probability"},
+            {regex:/probability/,hint:"Cần sampling.probability"}
+          ],explanation:"management.tracing.sampling.probability: 1.0 (hoặc 0.1 cho production)."}
         ]
       }
     ]
@@ -1465,7 +1522,500 @@ const COURSE_DATA = [
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Schema Registry quản lý gì?",options:["Database schema","Message schema versions","API endpoints","Service registry"],answer:1,explanation:"Schema Registry quản lý schema versions của message trong Kafka topics."},
           {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Backward compatible nghĩa là gì?",options:["Consumer cũ đọc được message mới","Consumer mới đọc được message cũ","Cả hai chiều","Không cho phép thay đổi"],answer:0,explanation:"Backward: old consumer → new message (thêm optional field)."},
           {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Đảm bảo thứ tự message theo key: gửi cùng key vào cùng ___",expectedKeywords:["partition","partition\n"],explanation:"Gửi cùng key → cùng partition → Kafka đảm bảo thứ tự trong partition."},
-          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Nên thay đổi schema message mà không versioning?",answer:false,explanation:"Luôn versioning schema để consumer cũ không bị crash khi schema thay đổi."}
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Nên thay đổi schema message mà không versioning?",answer:false,explanation:"Luôn versioning schema để consumer cũ không bị crash khi schema thay đổi."},
+          // --- Bổ sung bài tập Phase 7 ---
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"Kafka Consumer Group: Nếu có 3 partitions và 4 consumers trong cùng group, điều gì xảy ra?",options:["Mỗi consumer đọc 1 partition, 1 consumer rảnh","4 consumer mỗi người đọc 1 partition","3 partitions không đủ cho 4 consumers","Group bị lỗi"],answer:0,explanation:"Mỗi partition chỉ do 1 consumer trong group đọc. Consumer thứ 4 rảnh (idle)."},
+          {type:"mcq",difficulty:"advanced",badge:"Vận dụng cao",question:"Khi nào nên dùng Kafka over RabbitMQ?",options:["Khi cần message ordering trong topic","Khi cần xử lý real-time streams và replay dữ liệu","Khi cần nhiều queues","Khi ứng dụng đơn giản"],answer:1,explanation:"Kafka: log-based, lưu message lâu, replay được, throughput cao. RabbitMQ: message queue truyền thống."},
+          {type:"fill",difficulty:"advanced",badge:"Vận dụng cao",question:"Kafka exactly-once semantics cần: ___ producer + transactional API",expectedKeywords:["idempotent","idempotent\n"],explanation:"Idempotent producer + transactional API = exactly-once semantics (EOS)."},
+          {type:"truefalse",difficulty:"advanced",badge:"Vận dụng cao",question:"Eventual consistency trong EDA đồng nghĩa với dữ liệu không chính xác?",answer:false,explanation:"Dữ liệu sẽ chính xác sau một khoảng thời gian — không phải là sai, chỉ là có độ trễ."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết Spring Kafka consumer lắng nghe topic 'order-events' và log message",template:"@Component\npublic class OrderEventConsumer {\n    @___Listener(topics = \"order-events\", groupId = \"order-group\")\n    public void handleOrderEvent(String message) {\n        log.info(\"Received: {}\", message);\n    }\n}",
+          checks:[
+            {regex:/@KafkaListener/,hint:"Cần @KafkaListener annotation"},
+            {regex:/topics\s*=/,hint:"Cần chỉ định topics"},
+            {regex:/groupId/,hint:"Cần groupId cho consumer group"}
+          ],explanation:"@KafkaListener(topics = \"order-events\", groupId = \"order-group\")"}
+        ]
+      }
+    ]
+  },
+
+  // ============================================================
+  // PHASE 8: REACTIVE PROGRAMMING
+  // ============================================================
+  {
+    id: "phase-8", title: "Reactive Programming", icon: "⚡",
+    desc: "Project Reactor, WebFlux, R2DBC, Reactive Streams, RSocket",
+    topics: [
+      // --- Reactive Streams ---
+      {
+        id: "p8-reactive", title: "Reactive Streams & Project Reactor",
+        sources: [
+          {name:"Reactive Streams Spec",url:"https://www.reactive-streams.org/"},
+          {name:"Project Reactor Docs",url:"https://projectreactor.io/docs"},
+          {name:"Baeldung — Reactive Streams",url:"https://www.baeldung.com/java-reactive-streams"}
+        ],
+        lesson: [
+          {type:"p",text:"<b>Reactive Programming</b> — lập trình bất đồng bộ dựa trên data streams và propagation of change."},
+          {type:"p",text:"<b>Backpressure</b>: subscriber kiểm soát tốc độ nhận dữ liệu từ publisher."},
+          {type:"p",text:"<b>Reactive Streams</b> — 4 interfaces cốt lõi:"},
+          {type:"ul",items:[
+            "<b>Publisher</b>: phát ra dữ liệu (có thể vô hạn).",
+            "<b>Subscriber</b>: nhận và xử lý dữ liệu.",
+            "<b>Subscription</b>: kết nối Publisher-Subscriber, dùng để request(n) hoặc cancel().",
+            "<b>Processor</b>: vừa là Publisher vừa là Subscriber."
+          ]},
+          {type:"p",text:"<b>Project Reactor</b> — implement Reactive Streams cho Spring:"},
+          {type:"ul",items:[
+            "<b>Flux&lt;T&gt;</b>: 0..N phần tử — stream đa giá trị.",
+            "<b>Mono&lt;T&gt;</b>: 0..1 phần tử — tương tự Optional nhưng reactive."
+          ]},
+          {type:"code",text:"// Flux & Mono cơ bản\nFlux<String> flux = Flux.just(\"A\", \"B\", \"C\", \"D\");\nflux.map(String::toLowerCase)\n    .filter(s -> !s.equals(\"b\"))\n    .subscribe(System.out::println);\n// Output: a, c, d\n\nMono<String> mono = Mono.just(\"Hello Reactive World\");\nmono.map(String::toUpperCase)\n    .subscribe(System.out::println);\n\n// Tạo từ các nguồn khác\nFlux<Integer> fromRange = Flux.range(1, 5);   // 1,2,3,4,5\nFlux<String> fromArray = Flux.fromArray(new String[]{\"X\",\"Y\",\"Z\"});\nMono<String> fromCallable = Mono.fromCallable(() -> fetchData());\n\n// Xử lý lỗi\nFlux<String> safe = flux\n    .onErrorReturn(\"fallback\")\n    .onErrorResume(ex -> Flux.just(\"recovered1\", \"recovered2\"))\n    .doOnError(e -> log.error(\"Error: \", e));"}
+        ],
+        exercises: [
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Reactive Streams gồm mấy interface cốt lõi?",options:["2","3","4","5"],answer:2,explanation:"4 interfaces: Publisher, Subscriber, Subscription, Processor."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Flux có thể phát ra bao nhiêu phần tử?",options:["0 hoặc 1","0 đến N","Chỉ 1","Không giới hạn"],answer:1,explanation:"Flux<T> phát ra 0..N phần tử (có thể vô hạn). Mono phát ra 0..1."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Mono tương tự class nào trong Java?",options:["List","Optional","Stream","Collection"],answer:1,explanation:"Mono<T> = Optional<T> reactive — 0 hoặc 1 phần tử."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Backpressure giúp giải quyết vấn đề gì?",options:["Tăng tốc độ xử lý","Subscriber kiểm soát tốc độ nhận dữ liệu","Giảm memory","Tự động retry"],answer:1,explanation:"Backpressure: subscriber báo cho publisher 'tôi chỉ nhận được từng này' → tránh quá tải."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Publisher phát 0..1 phần tử: <code>___&lt;T&gt;</code>",expectedKeywords:["Mono","Mono<T>"],explanation:"Mono<T> — 0 hoặc 1 phần tử."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Subscriber yêu cầu N phần tử: <code>subscription.___(N)</code>",expectedKeywords:["request","request("],"explanation:"subscription.request(N) — yêu cầu tối đa N phần tử."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Reactive Programming đồng nghĩa với asynchronous?",answer:false,explanation:"Reactive = asynchronous + data streams + backpressure. Không phải async nào cũng reactive."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Flux có thể vô hạn (infinite stream)?",answer:true,explanation:"Flux.interval(Duration.ofSeconds(1)) tạo stream vô hạn, subscriber quyết định khi nào stop."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Tạo Flux từ 1 đến 10, lọc số chẵn, nhân đôi, in ra",template:"Flux<Integer> numbers = Flux.range(1, 10);\nnumbers\n    ",
+          checks:[
+            {regex:/filter/,hint:"Cần filter() để lọc số chẵn"},
+            {regex:/n\s*%\s*2\s*==\s*0/,hint:"Điều kiện n % 2 == 0"},
+            {regex:/map/,hint:"Cần map() để nhân đôi"},
+            {regex:/subscribe/,hint:"Cần subscribe() để in kết quả"}
+          ],explanation:"numbers.filter(n -> n % 2 == 0).map(n -> n * 2).subscribe(System.out::println);"}
+        ]
+      },
+      // --- Spring WebFlux ---
+      {
+        id:"p8-webflux",title:"Spring WebFlux",
+        sources:[
+          {name:"Spring WebFlux Docs",url:"https://docs.spring.io/spring-framework/reference/web/webflux.html"},
+          {name:"Baeldung — Spring WebFlux Guide",url:"https://www.baeldung.com/spring-webflux"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Spring WebFlux</b> — reactive-stack web framework, thay thế Spring MVC (servlet-stack)."},
+          {type:"p",text:"<b>Khi nào dùng WebFlux?</b>"},
+          {type:"ul",items:[
+            "Xử lý nhiều request đồng thời với ít thread (non-blocking I/O).",
+            "Streaming dữ liệu real-time (SSE, WebSocket).",
+            "Khi ứng dụng cần độ trễ thấp, thông lượng cao.",
+            "Tích hợp với reactive database (MongoDB Reactive, R2DBC)."
+          ]},
+          {type:"p",text:"<b>WebFlux vs MVC:</b>"},
+          {type:"ul",items:[
+            "WebFlux: <code>@RestController</code> trả về <code>Mono&lt;T&gt;</code> hoặc <code>Flux&lt;T&gt;</code>.",
+            "WebFlux không cần <code>@Async</code> — mọi thứ reactive sẵn.",
+            "WebClient (reactive) thay thế RestTemplate.",
+            "Netty (mặc định) thay vì Tomcat."
+          ]},
+          {type:"code",text:"@RestController\n@RequestMapping(\"/api/v2/users\")\npublic class UserReactiveController {\n    private final UserReactiveRepository userRepo;\n    \n    public UserReactiveController(UserReactiveRepository userRepo) {\n        this.userRepo = userRepo;\n    }\n    \n    @GetMapping\n    public Flux<UserResponse> getAll() {\n        return userRepo.findAll()\n            .map(this::toResponse);\n    }\n    \n    @GetMapping(\"/{id}\")\n    public Mono<ResponseEntity<UserResponse>> getById(@PathVariable String id) {\n        return userRepo.findById(id)\n            .map(this::toResponse)\n            .map(ResponseEntity::ok)\n            .defaultIfEmpty(ResponseEntity.notFound().build());\n    }\n    \n    @PostMapping\n    public Mono<UserResponse> create(@Valid @RequestBody Mono<CreateUserRequest> req) {\n        return req.map(r -> new User(r.name(), r.email()))\n            .flatMap(userRepo::save)\n            .map(this::toResponse);\n    }\n    \n    // WebClient — reactive HTTP client\n    public Mono<AddressResponse> getAddress(Long userId) {\n        return WebClient.create(\"http://address-service\")\n            .get()\n            .uri(\"/api/addresses/{id}\", userId)\n            .retrieve()\n            .bodyToMono(AddressResponse.class);\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"WebFlux server mặc định dùng container nào?",options:["Tomcat","Netty","Undertow","Jetty"],answer:1,explanation:"Spring WebFlux mặc định dùng Netty (non-blocking I/O)."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"WebFlux endpoint trả về 1 phần tử dùng kiểu gì?",options:["Flux<T>","Mono<T>","List<T>","CompletableFuture<T>"],answer:1,explanation:"Mono<T> cho 0-1 phần tử. Flux<T> cho 0-N phần tử."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"WebClient thay thế class nào trong Spring MVC?",options:["RestTemplate","WebServiceTemplate","JdbcTemplate","AsyncRestTemplate"],answer:0,explanation:"WebClient là reactive HTTP client thay thế RestTemplate (deprecated)."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Dependency WebFlux: <code>spring-boot-starter-___</code>",expectedKeywords:["webflux","webflux\n"],explanation:"spring-boot-starter-webflux — reactive web dependency."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"WebFlux yêu cầu Java 8+ và Spring 5+?",answer:true,explanation:"WebFlux có từ Spring 5 (2017), yêu cầu Java 8+."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết WebFlux endpoint GET trả về Flux<String> danh sách tên",template:"@RestController\npublic class NameController {\n    @GetMapping(\"/names\")\n    public ___<String> getNames() {\n        return Flux.just(\"Alice\", \"Bob\", \"Charlie\");\n    }\n}",
+          checks:[
+            {regex:/Flux/,hint:"Cần kiểu trả về Flux"},
+            {regex:/@RestController/,hint:"Cần @RestController"},
+            {regex:/@GetMapping/,hint:"Cần @GetMapping"}
+          ],explanation:"Flux<String> — reactive stream trả về nhiều phần tử."}
+        ]
+      },
+      // --- R2DBC ---
+      {
+        id:"p8-r2dbc",title:"R2DBC & Reactive Database",
+        sources:[
+          {name:"R2DBC Official",url:"https://r2dbc.io/"},
+          {name:"Baeldung — R2DBC Guide",url:"https://www.baeldung.com/spring-data-r2dbc"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>R2DBC</b> (Reactive Relational Database Connectivity) — truy vấn SQL reactive, non-blocking."},
+          {type:"p",text:"<b>So sánh JPA vs R2DBC:</b>"},
+          {type:"ul",items:[
+            "JPA: blocking I/O, dùng thread pool, quen thuộc, nhiều tính năng ORM.",
+            "R2DBC: non-blocking, ít thread hơn, reactive pipeline, ít tính năng ORM hơn.",
+            "Spring Data R2DBC: Repository pattern tương tự JPA nhưng reactive.",
+            "Không có @OneToMany, @ManyToOne — tự handle relationships."
+          ]},
+          {type:"code",text:"// Entity với Spring Data R2DBC\nimport org.springframework.data.annotation.Id;\nimport org.springframework.data.relational.core.mapping.Table;\n\n@Table(\"users\")\npublic class User {\n    @Id\n    private Long id;\n    private String name;\n    private String email;\n    // getters, setters\n}\n\n// Reactive Repository\npublic interface UserReactiveRepository extends ReactiveCrudRepository<User, Long> {\n    Mono<User> findByEmail(String email);\n    Flux<User> findByNameContaining(String name);\n}\n\n// Service\n@Service\npublic class UserReactiveService {\n    private final UserReactiveRepository repo;\n    \n    public UserReactiveService(UserReactiveRepository repo) {\n        this.repo = repo;\n    }\n    \n    public Flux<UserResponse> searchByName(String name) {\n        return repo.findByNameContaining(name)\n            .map(user -> new UserResponse(user.getId(), user.getName(), user.getEmail()));\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"R2DBC viết tắt của?",options:["Reactive Relational Database Connectivity","Reactive Remote Database Call","Reactive Read Database Connection","Relational Reactive Database Client"],answer:0,explanation:"R2DBC = Reactive Relational Database Connectivity."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Interface Repository cho reactive database?",options:["JpaRepository","CrudRepository","ReactiveCrudRepository","PagingAndSortingRepository"],answer:2,explanation:"ReactiveCrudRepository — trả về Mono/Flux thay vì Optional/List."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"R2DBC driver cho PostgreSQL: <code>___</code>",expectedKeywords:["r2dbc-postgresql","r2dbc-postgresql","io.r2dbc:r2dbc-postgresql"],explanation:"r2dbc-postgresql là reactive driver cho PostgreSQL."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"R2DBC hỗ trợ @OneToMany annotation như JPA?",answer:false,explanation:"R2DBC không hỗ trợ relationship annotations — tự join thủ công."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết Reactive Repository tìm user theo email",template:"public interface UserRepo extends ___CrudRepository<User, Long> {\n    Mono<User> ___(String email);\n}",
+          checks:[
+            {regex:/Reactive/,hint:"Cần ReactiveCrudRepository"},
+            {regex:/findBy|findByEmail/,hint:"Cần findByEmail method"}
+          ],explanation:"ReactiveCrudRepository<User, Long> + Mono<User> findByEmail(String email);"}
+        ]
+      },
+      // --- Reactive Design Patterns ---
+      {
+        id:"p8-reactive-patterns",title:"Reactive Design Patterns & Best Practices",
+        sources:[
+          {name:"ReactiveX — Operators",url:"https://reactivex.io/documentation/operators.html"},
+          {name:"Baeldung — Flux vs Mono",url:"https://www.baeldung.com/reactor-core"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>flatMap vs map — rất quan trọng:</b>"},
+          {type:"ul",items:[
+            "<b>map()</b>: biến đổi đồng bộ 1-1. VD: <code>Mono.just(user).map(u -> u.getName())</code>",
+            "<b>flatMap()</b>: biến đổi bất đồng bộ, trả về Mono/Flux mới. Dùng khi gọi service/database khác.",
+            "<b>flatMapMany()</b>: Mono → Flux."
+          ]},
+          {type:"p",text:"<b>Error Handling trong Reactor:</b>"},
+          {type:"ul",items:[
+            "<code>onErrorReturn(T)</code>: trả về giá trị mặc định khi lỗi.",
+            "<code>onErrorResume(Function)</code>: chuyển sang Publisher khác khi lỗi.",
+            "<code>onErrorMap(Function)</code>: biến đổi exception.",
+            "<code>doOnError(Consumer)</code>: log lỗi, không thay đổi stream.",
+            "<code>retry(int)</code>: thử lại N lần.",
+            "<code>timeout(Duration)</code>: timeout — ném TimeoutException."
+          ]},
+          {type:"code",text:"// flatMap vs map\n// ❌ Sai: map trả về Mono<Mono<User>>\nMono<Mono<User>> wrong = Mono.just(userId)\n    .map(id -> findById(id));  // findById trả về Mono\n\n// ✅ Đúng: flatMap flatten\nMono<User> correct = Mono.just(userId)\n    .flatMap(this::findById);\n\n// Error handling patterns\nFlux<String> result = Flux.just(\"1\", \"2\", \"abc\", \"3\")\n    .flatMap(s -> Mono.fromCallable(() -> Integer.parseInt(s))\n        .onErrorResume(e -> Mono.empty())  // Bỏ qua lỗi\n        .map(i -> \"Number: \" + i)\n    );\n\n// Timeout & Retry\nMono<User> user = userRepo.findById(id)\n    .timeout(Duration.ofSeconds(5))\n    .retry(2)\n    .onErrorResume(e -> Mono.just(User.anonymous()));\n\n// Combine publishers\nMono<Void> allDone = Mono.when(\n    userRepo.save(user),\n    auditRepo.log(action)\n);\n\nFlux<Tuple2<User, Order>> joined = Flux.zip(\n    userRepo.findAll(),\n    orderRepo.findAll()\n);"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"flatMap dùng khi nào?",options:["Biến đổi đồng bộ","Biến đổi bất đồng bộ, trả về Publisher mới","Lọc phần tử","Gộp nhiều stream"],answer:1,explanation:"flatMap dùng khi mỗi phần tử cần một async operation trả về Mono/Flux."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Operator nào thử lại khi stream gặp lỗi?",options:["onErrorReturn","onErrorResume","retry","timeout"],answer:2,explanation:"retry(N) — tự động subscribe lại N lần khi gặp lỗi."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Chuyển đổi Mono → Flux: <code>Mono.flatMap___()</code>",expectedKeywords:["Many","Many()","flatMapMany"],explanation:"flatMapMany() chuyển Mono<T> thành Flux<R>."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"map() dùng được với async operations gọi database?",answer:false,explanation:"map() dùng cho biến đổi đồng bộ. flatMap() dùng cho async operations."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Sử dụng flatMap để tìm user, sau đó lấy orders của user",template:"Mono<User> userMono = userRepo.findById(userId);\nuserMono\n    .___(user -> orderRepo.findByUserId(user.getId()))\n    .subscribe(System.out::println);",
+          checks:[
+            {regex:/flatMap/,hint:"Cần flatMap để chuyển từ Mono<User> → Flux<Order>"}
+          ],explanation:"userMono.flatMapMany(user -> orderRepo.findByUserId(user.getId()))"}
+        ]
+      },
+      // --- RSocket ---
+      {
+        id:"p8-rsocket",title:"RSocket Protocol",
+        sources:[
+          {name:"RSocket Official",url:"https://rsocket.io/"},
+          {name:"Spring RSocket Docs",url:"https://docs.spring.io/spring-framework/reference/rsocket.html"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>RSocket</b> — giao thức truyền tải mới, thay thế REST cho microservices."},
+          {type:"p",text:"<b>4 mô hình tương tác:</b>"},
+          {type:"ul",items:[
+            "<b>Request-Response</b>: 1 message → 1 response (như HTTP).",
+            "<b>Request-Stream</b>: 1 message → stream response (như SSE).",
+            "<b>Fire-and-Forget</b>: 1 message → không response.",
+            "<b>Channel</b>: bidirectional stream — cả 2 phía đều gửi được."
+          ]},
+          {type:"p",text:"<b>RSocket vs HTTP:</b>"},
+          {type:"ul",items:[
+            "RSocket multiplexes — nhiều stream trên một kết nối TCP.",
+            "Backpressure native — Reactive Streams built-in.",
+            "Hỗ trợ push từ server (HTTP phải polling).",
+            "Spring Boot hỗ trợ RSocket qua <code>@MessageMapping</code>."
+          ]},
+          {type:"code",text:"// RSocket Server\n@Controller\npublic class GreetingController {\n    \n    // Request-Response\n    @MessageMapping(\"greeting\")\n    public Mono<String> greet(String name) {\n        return Mono.just(\"Hello \" + name);\n    }\n    \n    // Request-Stream\n    @MessageMapping(\"counter\")\n    public Flux<Long> counter(int max) {\n        return Flux.range(1, max)\n            .map(Long::valueOf);\n    }\n    \n    // Fire-and-Forget\n    @MessageMapping(\"log\")\n    public Mono<Void> logMessage(String message) {\n        log.info(\"Received: {}\", message);\n        return Mono.empty();\n    }\n}\n\n// RSocket Client\n@SpringBootApplication\npublic class ClientApp {\n    public static void main(String[] args) {\n        RSocketRequester requester = RSocketRequester.builder()\n            .tcp(\"localhost\", 7000);\n        \n        requester.route(\"greeting\")\n            .data(\"World\")\n            .retrieveMono(String.class)\n            .subscribe(System.out::println);\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"RSocket hỗ trợ mấy mô hình tương tác?",options:["2","3","4","5"],answer:2,explanation:"4 models: Request-Response, Request-Stream, Fire-and-Forget, Channel."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Fire-and-Forget khác Request-Response thế nào?",options:["Fire-and-Forget nhanh hơn","Fire-and-Forget không trả về response, không chờ","Fire-and-Forget dùng TCP","Giống nhau"],answer:1,explanation:"Fire-and-Forget: gửi message, không cần response → thông lượng cao hơn."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"RSocket hỗ trợ bidirectional stream: ___",expectedKeywords:["Channel","channel","Channel model"],explanation:"Channel — cả 2 phía gửi/nhận độc lập trên một kết nối."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"RSocket có thể push dữ liệu từ server mà không cần client request?",answer:true,explanation:"RSocket hỗ trợ server push — không cần polling hay WebSocket."}
+        ]
+      }
+    ]
+  },
+
+  // ============================================================
+  // PHASE 9: TESTING & TDD CHUYÊN SÂU
+  // ============================================================
+  {
+    id: "phase-9", title: "Testing & TDD", icon: "🧪",
+    desc: "JUnit 5, Mockito, Testcontainers, WireMock, ArchUnit, Performance Test",
+    topics:[
+      // --- JUnit 5 Advanced ---
+      {
+        id:"p9-junit5",title:"JUnit 5 Nâng cao",
+        sources:[
+          {name:"JUnit 5 Docs",url:"https://junit.org/junit5/docs/current/user-guide/"},
+          {name:"Baeldung — JUnit 5 Guide",url:"https://www.baeldung.com/junit-5"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>JUnit 5 = JUnit Platform + Jupiter + Vintage</b>."},
+          {type:"p",text:"<b>Các annotation nâng cao:</b>"},
+          {type:"ul",items:[
+            "<code>@ParameterizedTest</code>: test với nhiều bộ dữ liệu.",
+            "<code>@CsvSource</code>: cung cấp dữ liệu dạng CSV.",
+            "<code>@MethodSource</code>: nguồn dữ liệu từ static method.",
+            "<code>@RepeatedTest</code>: lặp test N lần.",
+            "<code>@Nested</code>: nhóm test lồng nhau.",
+            "<code>@TempDir</code>: tạo thư mục tạm cho file tests.",
+            "<code>@Timeout</code>: giới hạn thời gian chạy test."
+          ]},
+          {type:"code",text:"@Nested\n@DisplayName(\"UserService Tests\")\nclass UserServiceTest {\n    \n    @Test\n    @DisplayName(\"Should create user successfully\")\n    @Tag(\"smoke\")\n    void shouldCreateUser() { }\n    \n    @ParameterizedTest\n    @CsvSource({\n        \"alice@email.com, Alice, 22\",\n        \"bob@email.com, Bob, 30\",\n        \"charlie@email.com, Charlie, 25\"\n    })\n    @DisplayName(\"Should create user from CSV\")\n    void createUserFromCsv(String email, String name, int age) { }\n    \n    @RepeatedTest(value = 10, name = \"Retry {currentRepetition}/{totalRepetitions}\")\n    void retryFlakyTest() { }\n    \n    @Test\n    @Timeout(5)\n    void shouldCompleteWithin5Seconds() { }\n    \n    @Test\n    void fileTest(@TempDir Path tempDir) throws Exception {\n        Path file = tempDir.resolve(\"test.txt\");\n        Files.writeString(file, \"Hello\");\n        assertThat(Files.readString(file)).isEqualTo(\"Hello\");\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation nào chạy test với nhiều bộ dữ liệu?",options:["@Test","@ParameterizedTest","@RepeatedTest","@Nested"],answer:1,explanation:"@ParameterizedTest + @CsvSource/@MethodSource chạy test với nhiều dữ liệu."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation nào tạo thư mục tạm?",options:["@TempDir","@TemporaryDirectory","@TempFile","@TestDir"],answer:0,explanation:"@TempDir tự động tạo và dọn thư mục tạm cho test."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Nhóm test lồng nhau: <code>@___</code>",expectedKeywords:["Nested","@Nested"],explanation:"@Nested — test lồng nhau, tăng khả năng tổ chức."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"@RepeatedTest dùng cho flaky test?",answer:true,explanation:"@RepeatedTest chạy lại test N lần — hữu ích cho flaky tests."},
+          {type:"code",difficulty:"advanced",badge:"Thực hành",question:"Viết ParameterizedTest với CsvSource kiểm tra validate email",template:"@ParameterizedTest\n@CsvSource({\n    \"user@email.com, true\",\n    \"invalid, false\"\n})\nvoid validateEmail(String email, boolean expected) {\n    \n}",
+          checks:[
+            {regex:/@ParameterizedTest/,hint:"Cần @ParameterizedTest"},
+            {regex:/@CsvSource/,hint:"Cần @CsvSource với dữ liệu"},
+            {regex:/assertEquals|assertThat|isEqualTo/,hint:"Cần assertion"}
+          ],explanation:"@ParameterizedTest + @CsvSource + assertThat(validator.isValid(email)).isEqualTo(expected);"}
+        ]
+      },
+      // --- Testcontainers ---
+      {
+        id:"p9-testcontainers",title:"Testcontainers (Integration Test)",
+        sources:[
+          {name:"Testcontainers Docs",url:"https://testcontainers.com/guides/"},
+          {name:"Baeldung — Testcontainers Guide",url:"https://www.baeldung.com/spring-boot-testcontainers"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Testcontainers</b> — chạy Docker containers trong test — tạo integration test với database thật."},
+          {type:"p",text:"<b>Testcontainers phổ biến:</b>"},
+          {type:"ul",items:[
+            "<code>PostgreSQLContainer</code>: test với PostgreSQL thật.",
+            "<code>MySQLContainer</code>: test với MySQL thật.",
+            "<code>MongoDBContainer</code>: test với MongoDB thật.",
+            "<code>KafkaContainer</code>: test với Kafka thật.",
+            "<code>GenericContainer</code>: chạy bất kỳ Docker image nào."
+          ]},
+          {type:"code",text:"@SpringBootTest\n@Testcontainers\nclass UserRepositoryIntegrationTest {\n    \n    @Container\n    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(\"postgres:16-alpine\")\n        .withDatabaseName(\"testdb\")\n        .withUsername(\"test\")\n        .withPassword(\"test\");\n    \n    @DynamicPropertySource\n    static void configureProperties(DynamicPropertyRegistry reg) {\n        reg.add(\"spring.datasource.url\", postgres::getJdbcUrl);\n        reg.add(\"spring.datasource.username\", postgres::getUsername);\n        reg.add(\"spring.datasource.password\", postgres::getPassword);\n    }\n    \n    @Autowired\n    private UserRepository userRepo;\n    \n    @Test\n    void shouldPersistUser() {\n        User user = new User(\"Alice\", \"alice@email.com\");\n        User saved = userRepo.save(user);\n        assertThat(saved.getId()).isNotNull();\n        assertThat(saved.getName()).isEqualTo(\"Alice\");\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Testcontainers yêu cầu gì trên máy?",options:["Java 21","Docker","Maven","Linux"],answer:1,explanation:"Testcontainers cần Docker Engine để chạy containers trong test."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Annotation khởi tạo container?",options:["@TestContainer","@Container","@DockerContainer","@TestcontainersInit"],answer:1,explanation:"@Container — khởi tạo static container chung cho tất cả test."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Cập nhật properties từ container: <code>@___PropertySource</code>",expectedKeywords:["Dynamic","@DynamicPropertySource","DynamicPropertySource"],explanation:"@DynamicPropertySource override properties từ container (JDBC URL, credentials)."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Testcontainers tự động dọn container sau test?",answer:true,explanation:"Testcontainers tự động stop và xoá container sau khi test class kết thúc."}
+        ]
+      },
+      // --- WireMock ---
+      {
+        id:"p9-wiremock",title:"WireMock — Mock HTTP APIs",
+        sources:[
+          {name:"WireMock Docs",url:"https://wiremock.org/docs/"},
+          {name:"Baeldung — WireMock Guide",url:"https://www.baeldung.com/introduction-to-wiremock"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>WireMock</b> — mock HTTP server cho integration test — giả lập API bên thứ 3."},
+          {type:"p",text:"<b>Use cases:</b>"},
+          {type:"ul",items:[
+            "Giả lập REST API của service khác trong microservices.",
+            "Test error handling (timeout, 500, 404).",
+            "Test response delay, network failure.",
+            "Record và replay stub từ API thật."
+          ]},
+          {type:"code",text:"@SpringBootTest\n@AutoConfigureWireMock(port = 0)\nclass PaymentServiceTest {\n    \n    @Autowired\n    private PaymentService paymentService;\n    \n    @Test\n    void shouldProcessPaymentSuccessfully() {\n        // Stub API trả về 200\n        stubFor(post(urlEqualTo(\"/api/payments\"))\n            .willReturn(aResponse()\n                .withStatus(200)\n                .withHeader(\"Content-Type\", \"application/json\")\n                .withBody(\"\"\"{\"status\": \"SUCCESS\", \"transactionId\": \"tx-123\"}\"\"\")));\n        \n        PaymentResult result = paymentService.process(new PaymentRequest(100));\n        assertThat(result.status()).isEqualTo(\"SUCCESS\");\n    }\n    \n    @Test\n    void shouldHandlePaymentFailure() {\n        stubFor(post(urlEqualTo(\"/api/payments\"))\n            .willReturn(aResponse()\n                .withStatus(500)\n                .withBody(\"\"\"{\"error\": \"Server error\"}\"\"\")));\n        \n        assertThatThrownBy(() -> paymentService.process(new PaymentRequest(100)))\n            .isInstanceOf(PaymentException.class);\n    }\n    \n    @Test\n    void shouldHandleTimeout() {\n        stubFor(post(urlEqualTo(\"/api/payments\"))\n            .willReturn(aResponse()\n                .withFixedDelay(10000)));  // Delay 10 giây\n        \n        assertThatThrownBy(() -> paymentService.process(new PaymentRequest(100)))\n            .isInstanceOf(TimeoutException.class);\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"WireMock dùng để làm gì?",options:["Mock database","Mock HTTP API","Generate test data","Measure performance"],answer:1,explanation:"WireMock mock HTTP server — giả lập REST API cho integration test."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Stub trong WireMock là gì?",options:["Test data","Endpoint giả lập + response mong đợi","Container Docker","Mock object"],answer:1,explanation:"Stub = request matcher + response definition (status, headers, body)."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Cấu hình WireMock port tự động: <code>@AutoConfigureWireMock(___ = 0)</code>",expectedKeywords:["port","port\n"],explanation:"@AutoConfigureWireMock(port = 0) — random port, tránh conflict."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"WireMock chỉ dùng cho Spring Boot?",answer:false,explanation:"WireMock là standalone HTTP server — dùng được với bất kỳ framework nào."}
+        ]
+      },
+      // --- ArchUnit ---
+      {
+        id:"p9-archunit",title:"ArchUnit — Kiến trúc Test",
+        sources:[
+          {name:"ArchUnit Docs",url:"https://www.archunit.org/"},
+          {name:"Baeldung — ArchUnit Guide",url:"https://www.baeldung.com/java-archunit-intro"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>ArchUnit</b> — test cấu trúc package, class dependency — đảm bảo tuân thủ architecture."},
+          {type:"p",text:"<b>Các rule phổ biến:</b>"},
+          {type:"ul",items:[
+            "Service không phụ thuộc trực tiếp vào Controller.",
+            "Repository chỉ được dùng trong Service layer.",
+            "Entity không được expose ra Controller.",
+            "Package cycles bị cấm (A → B → A).",
+            "Tên class phải theo convention (*Service, *Repository, *Controller)."
+          ]},
+          {type:"code",text:"@AnalyzeClasses(packages = \"com.example\")\npublic class ArchitectureTest {\n    \n    @ArchTest\n    static final ArchRule serviceLayerRule = classes()\n        .that().resideInAPackage(\"..service..\")\n        .should().onlyBeAccessed()\n            .byClassesThat().resideInAnyPackage(\"..controller..\", \"..service..\");\n    \n    @ArchTest\n    static final ArchRule namingRule = classes()\n        .that().areAnnotatedWith(@Service.class)\n        .should().haveSimpleNameEndingWith(\"Service\");\n    \n    @ArchTest\n    static final ArchRule noCycleRule = slices()\n        .matching(\"com.example.(*)..\")\n        .should().beFreeOfCycles();\n    \n    @ArchTest\n    static final ArchRule repositoryRule = classes()\n        .that().resideInAPackage(\"..repository..\")\n        .should().onlyHaveDependentClassesThat()\n            .resideInAnyPackage(\"..service..\", \"..repository..\");\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"ArchUnit dùng để kiểm tra gì?",options:["Code coverage","Kiến trúc package và dependency","Database migration","API performance"],answer:1,explanation:"ArchUnit kiểm tra cấu trúc package, dependency giữa các layer, naming convention."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Annotation nào phân tích packages cho ArchUnit?",options:["@PackageScan","@AnalyzeClasses","@ArchTest","@ArchitectureScan"],answer:1,explanation:"@AnalyzeClasses(packages = \"com.example\") — quét package để kiểm tra rules."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Static rule trong ArchUnit dùng annotation: <code>@___</code>",expectedKeywords:["ArchTest","@ArchTest"],explanation:"@ArchTest — đánh dấu ArchRule static field."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"ArchUnit có thể phát hiện cyclic dependency giữa packages?",answer:true,explanation:"slices().matching(\"..(*)..\").should().beFreeOfCycles() — phát hiện cycle."}
+        ]
+      },
+      // --- Performance Test ---
+      {
+        id:"p9-perf",title:"Performance & Load Testing",
+        sources:[
+          {name:"JMeter Docs",url:"https://jmeter.apache.org/usermanual/"},
+          {name:"Gatling Docs",url:"https://gatling.io/docs/"},
+          {name:"Baeldung — Java Microbenchmark",url:"https://www.baeldung.com/java-microbenchmark-harness"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>3 loại performance test:</b>"},
+          {type:"ul",items:[
+            "<b>Load Test</b>: kiểm tra với tải trung bình/dự kiến.",
+            "<b>Stress Test</b>: kiểm tra với tải vượt quá giới hạn.",
+            "<b>Endurance Test</b>: kiểm tra trong thời gian dài (memory leak)."
+          ]},
+          {type:"p",text:"<b>Công cụ:</b>"},
+          {type:"ul",items:[
+            "<b>JMeter</b>: GUI-based, phổ biến, hỗ trợ nhiều giao thức.",
+            "<b>Gatling</b>: Scala-based, code as test, báo cáo đẹp.",
+            "<b>k6</b>: JavaScript-based, modern, CI-friendly.",
+            "<b>JMH (Java Microbenchmark Harness)</b>: benchmark method-level performance."
+          ]},
+          {type:"p",text:"<b>JMH — Benchmark method trong Java:</b>"},
+          {type:"code",text:"@BenchmarkMode(Mode.AverageTime)\n@OutputTimeUnit(TimeUnit.NANOSECONDS)\n@State(Scope.Thread)\npublic class StringBenchmark {\n    \n    private String str = \"hello world\";\n    \n    @Benchmark\n    public String stringConcat() {\n        return str + \"!\" + str;\n    }\n    \n    @Benchmark\n    public String stringBuilder() {\n        return new StringBuilder(str).append(\"!\").append(str).toString();\n    }\n    \n    @Benchmark\n    public String stringFormat() {\n        return String.format(\"%s!%s\", str, str);\n    }\n    \n    public static void main(String[] args) throws RunnerException {\n        Options opt = new OptionsBuilder()\n            .include(StringBenchmark.class.getSimpleName())\n            .forks(2)\n            .warmupIterations(5)\n            .measurementIterations(10)\n            .build();\n        new Runner(opt).run();\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Load Test kiểm tra gì?",options:["Tải vượt giới hạn","Tải trung bình/dự kiến","Thời gian dài","Bảo mật"],answer:1,explanation:"Load Test: kiểm tra với tải mong đợi trong production."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Công cụ nào dùng JavaScript để viết test?",options:["JMeter","Gatling","k6","JMH"],answer:2,explanation:"k6 dùng JavaScript, modern, dễ tích hợp CI/CD."},
+          {type:"fill",difficulty:"intermediate",badge:"Điền khuyết",question:"Java benchmark framework: ___ (viết tắt)",expectedKeywords:["JMH","JMH\n"],explanation:"JMH = Java Microbenchmark Harness (OpenJDK)."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Stress Test kiểm tra điểm sụp đổ của hệ thống?",answer:true,explanation:"Stress Test tăng dần tải đến khi hệ thống fail — tìm breaking point."}
+        ]
+      }
+    ]
+  },
+
+  // ============================================================
+  // PHASE 10: DEVOPS & CLOUD DEPLOYMENT
+  // ============================================================
+  {
+    id: "phase-10", title: "DevOps & CI/CD", icon: "🔄",
+    desc: "Docker Compose, Kubernetes, GitHub Actions, Terraform, Monitoring",
+    topics:[
+      // --- Docker Compose Advanced ---
+      {
+        id:"p10-docker-compose",title:"Docker Compose Nâng cao",
+        sources:[
+          {name:"Docker Compose Docs",url:"https://docs.docker.com/compose/"},
+          {name:"Baeldung — Docker Compose Spring Boot",url:"https://www.baeldung.com/docker-compose-spring-boot"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Docker Compose</b> — định nghĩa và chạy multi-container Docker applications."},
+          {type:"p",text:"<b>Một số best practices:</b>"},
+          {type:"ul",items:[
+            "Dùng <b>multi-stage build</b> — build image nhỏ hơn.",
+            "Dùng <b>healthcheck</b> — kiểm tra service sẵn sàng.",
+            "Dùng <b>environment variables</b> cho cấu hình.",
+            "Dùng <b>volumes</b> cho persistent data.",
+            "Dùng <b>depends_on</b> với condition <code>service_healthy</code>."
+          ]},
+          {type:"code",text:"# Multi-stage Dockerfile\n# Stage 1: Build\nFROM maven:3.9-eclipse-temurin-17 AS build\nWORKDIR /app\nCOPY pom.xml .\nRUN mvn dependency:go-offline\nCOPY src ./src\nRUN mvn clean package -DskipTests\n\n# Stage 2: Runtime\nFROM eclipse-temurin:17-jre-alpine\nRUN addgroup -S app && adduser -S app -G app\nUSER app\nWORKDIR /app\nCOPY --from=build /app/target/*.jar app.jar\nEXPOSE 8080\nHEALTHCHECK --interval=30s --timeout=3s --retries=3 \\\n  CMD wget -qO- http://localhost:8080/actuator/health || exit 1\nENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]"},
+          {type:"code",text:"# docker-compose.yml nâng cao\nversion: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - \"8080:8080\"\n    environment:\n      - SPRING_PROFILES_ACTIVE=prod\n      - DATABASE_URL=jdbc:postgresql://db:5432/myapp\n    depends_on:\n      db:\n        condition: service_healthy\n      redis:\n        condition: service_started\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD\", \"wget\", \"-qO-\", \"http://localhost:8080/actuator/health\"]\n      interval: 30s\n      timeout: 5s\n      retries: 3\n  \n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: myapp\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n      interval: 10s\n  \n  redis:\n    image: redis:7-alpine\n    volumes:\n      - redisdata:/data\n    restart: always\n\nvolumes:\n  pgdata:\n  redisdata:"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Multi-stage build giúp gì?",options:["Tăng tốc build","Giảm kích thước image","Tăng bảo mật","Tất cả"],answer:3,explanation:"Multi-stage build: tách build và runtime → image nhỏ hơn, an toàn hơn, build nhanh."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"HEALTHCHECK trong Dockerfile dùng để làm gì?",options:["Kiểm tra license","Kiểm tra service còn sống","Update container","Scale container"],answer:1,explanation:"HEALTHCHECK — Docker kiểm tra định kỳ service còn hoạt động."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"depends_on condition sẵn sàng: <code>condition: service____</code>",expectedKeywords:["healthy","healthy\n"],explanation:"condition: service_healthy — chỉ start app khi db healthcheck pass."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Docker Compose dùng để chạy 1 container duy nhất?",answer:false,explanation:"Docker Compose chuyên cho multi-container. Docker run cho single container."}
+        ]
+      },
+      // --- GitHub Actions ---
+      {
+        id:"p10-github-actions",title:"GitHub Actions CI/CD",
+        sources:[
+          {name:"GitHub Actions Docs",url:"https://docs.github.com/en/actions"},
+          {name:"Baeldung — Spring Boot CI/CD",url:"https://www.baeldung.com/spring-boot-ci-cd-github-actions"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>GitHub Actions</b> — CI/CD tích hợp sẵn trong GitHub repository."},
+          {type:"p",text:"<b>Pipeline điển hình cho Spring Boot:</b>"},
+          {type:"code",text:"# .github/workflows/ci.yml\nname: Spring Boot CI/CD\n\non:\n  push:\n    branches: [main, develop]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:16-alpine\n        env:\n          POSTGRES_DB: testdb\n          POSTGRES_PASSWORD: test\n        ports:\n          - 5432:5432\n        options: >-\n          --health-cmd pg_isready\n          --health-interval 10s\n          --health-retries 5\n    \n    steps:\n      - uses: actions/checkout@v4\n      - name: Set up JDK 17\n        uses: actions/setup-java@v4\n        with:\n          java-version: '17'\n          distribution: 'temurin'\n          cache: maven\n      - name: Run tests\n        run: mvn verify\n        env:\n          DATABASE_URL: jdbc:postgresql://localhost:5432/testdb\n          DATABASE_USERNAME: postgres\n          DATABASE_PASSWORD: test\n  \n  build-and-push:\n    needs: test\n    if: github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Set up JDK 17\n        uses: actions/setup-java@v4\n        with:\n          java-version: '17'\n          distribution: 'temurin'\n      - name: Build JAR\n        run: mvn clean package -DskipTests\n      - name: Login to DockerHub\n        uses: docker/login-action@v3\n        with:\n          username: ${{ secrets.DOCKER_USERNAME }}\n          password: ${{ secrets.DOCKER_PASSWORD }}\n      - name: Build and push Docker image\n        uses: docker/build-push-action@v5\n        with:\n          context: .\n          push: true\n          tags: ${{ secrets.DOCKER_USERNAME }}/my-app:latest\n  \n  deploy:\n    needs: build-and-push\n    runs-on: ubuntu-latest\n    steps:\n      - name: Deploy to Railway\n        env:\n          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}\n        run: |\n          curl -fsSL https://railway.app/install.sh | sh\n          railway up --service my-app"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"GitHub Actions trigger khi nào?",options:["Chỉ khi push","push, pull_request, schedule, workflow_dispatch","Chỉ khi pull_request","Chỉ khi merge"],answer:1,explanation:"trigger on: push, pull_request, schedule (CRON), workflow_dispatch (manual)."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Dịch vụ phụ trợ (service) trong GitHub Actions?",options:["GitHub Server","Container service chạy song song (DB, Redis)","Build service","Deploy service"],answer:1,explanation:"services: — chạy container (PostgreSQL, Redis) cho integration test."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Action checkout code: <code>uses: actions/___@v4</code>",expectedKeywords:["checkout","checkout\n"],explanation:"actions/checkout@v4 — clone repository vào runner."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Secrets trong GitHub Actions dùng để lưu mật khẩu?",answer:true,explanation:"GitHub Secrets mã hoá — lưu Docker password, API keys, DATABASE_URL."},
+          {type:"order",difficulty:"intermediate",badge:"Sắp xếp",question:"Sắp xếp CI/CD pipeline:",items:["Checkout code","Setup JDK","Run tests","Build JAR","Push Docker image","Deploy"],answer:[0,1,2,3,4,5],explanation:"Checkout → JDK → Test → Build → Push → Deploy."}
+        ]
+      },
+      // --- Kubernetes ---
+      {
+        id:"p10-kubernetes",title:"Kubernetes — Container Orchestration",
+        sources:[
+          {name:"Kubernetes Docs",url:"https://kubernetes.io/docs/home/"},
+          {name:"Baeldung — Spring Boot Kubernetes",url:"https://www.baeldung.com/spring-boot-kubernetes"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Kubernetes (K8s)</b> — orchestration platform cho containers — tự động deploy, scale, manage."},
+          {type:"p",text:"<b>Kiến trúc K8s:</b>"},
+          {type:"ul",items:[
+            "<b>Pod</b>: đơn vị nhỏ nhất — 1+ containers chạy cùng node.",
+            "<b>Deployment</b>: quản lý replicas, rolling update, rollback.",
+            "<b>Service</b>: expose Pods qua network (ClusterIP, NodePort, LoadBalancer).",
+            "<b>ConfigMap / Secret</b>: lưu cấu hình và secrets.",
+            "<b>Ingress</b>: HTTP routing — domain, TLS, path-based routing.",
+            "<b>PersistentVolume (PV) / PersistentVolumeClaim (PVC)</b>: lưu trữ bền vững."
+          ]},
+          {type:"code",text:"# deployment.yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: spring-app\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: spring-app\n  template:\n    metadata:\n      labels:\n        app: spring-app\n    spec:\n      containers:\n        - name: app\n          image: myregistry/spring-app:latest\n          ports:\n            - containerPort: 8080\n          env:\n            - name: SPRING_PROFILES_ACTIVE\n              value: \"prod\"\n            - name: DATABASE_URL\n              valueFrom:\n                secretKeyRef:\n                  name: db-secret\n                  key: url\n          livenessProbe:\n            httpGet:\n              path: /actuator/health\n              port: 8080\n            initialDelaySeconds: 30\n          readinessProbe:\n            httpGet:\n              path: /actuator/health\n              port: 8080\n            initialDelaySeconds: 10\n---\n# service.yaml\napiVersion: v1\nkind: Service\nmetadata:\n  name: spring-app-service\nspec:\n  selector:\n    app: spring-app\n  ports:\n    - port: 80\n      targetPort: 8080\n  type: LoadBalancer"},
+          {type:"code",text:"# ingress.yaml\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: spring-app-ingress\nspec:\n  rules:\n    - host: api.myapp.com\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n            backend:\n              service:\n                name: spring-app-service\n                port:\n                  number: 80\n  tls:\n    - hosts:\n        - api.myapp.com\n      secretName: tls-secret"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Đơn vị deploy nhỏ nhất trong Kubernetes?",options:["Container","Pod","Deployment","Node"],answer:1,explanation:"Pod là đơn vị nhỏ nhất — 1+ container chạy cùng node."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Kubernetes Service type nào expose ra ngoài?",options:["ClusterIP","NodePort","LoadBalancer","Cả B và C"],answer:3,explanation:"NodePort (port cố định mỗi node) và LoadBalancer (cloud LB) expose external."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"LivenessProbe khác ReadinessProbe thế nào?",options:["Giống nhau","Liveness: restart nếu fail. Readiness: không gửi traffic nếu fail","Liveness kiểm tra CPU","Readiness kiểm tra memory"],answer:1,explanation:"Liveness: kill & restart Pod. Readiness: tạm ngừng gửi traffic nhưng Pod vẫn chạy."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Cập nhật Deployment với zero downtime: <code>kubectl set image deployment/spring-app ___=new-image:tag</code>",expectedKeywords:["app","app\n","container app"],explanation:"kubectl set image deployment/spring-app app=new-image:tag — rolling update."},
+          {type:"truefalse",difficulty:"basic",badge:"Đúng/Sai",question:"Helm dùng để deploy và quản lý Kubernetes applications?",answer:true,explanation:"Helm = package manager cho K8s — deploy, upgrade, rollback ứng dụng."},
+          {type:"order",difficulty:"advanced",badge:"Sắp xếp",question:"Sắp xếp K8s deployment flow:",items:["Tạo Docker image","Push image lên registry","Viết Kubernetes manifest (deployment, service)","kubectl apply -f manifest/","K8s tạo Pods từ Deployment","Service expose Pods ra ngoài"],answer:[0,1,2,3,4,5],explanation:"Build → Push → Manifest → Apply → Pods → Service."}
+        ]
+      },
+      // --- Terraform & IaC ---
+      {
+        id:"p10-terraform",title:"Terraform — Infrastructure as Code",
+        sources:[
+          {name:"Terraform Docs",url:"https://developer.hashicorp.com/terraform/docs"},
+          {name:"Baeldung — Terraform Guide",url:"https://www.baeldung.com/ops/terraform-intro"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>Infrastructure as Code (IaC)</b> — quản lý hạ tầng (server, database, network) bằng code."},
+          {type:"p",text:"<b>Terraform</b> — công cụ IaC phổ biến nhất:"},
+          {type:"ul",items:[
+            "Declarative — khai báo desired state, Terraform tự đạt được.",
+            "Providers: AWS, Azure, GCP, Docker, Kubernetes, GitHub...",
+            "State file: theo dõi resources đã tạo.",
+            "<code>terraform init</code> → <code>plan</code> → <code>apply</code> → <code>destroy</code>."
+          ]},
+          {type:"code",text:"# main.tf — Deploy Spring Boot trên AWS ECS\nterraform {\n  required_providers {\n    aws = { source = \"hashicorp/aws\", version = \"~> 5.0\" }\n  }\n}\n\nprovider \"aws\" {\n  region = \"ap-southeast-1\"\n}\n\nresource \"aws_ecs_cluster\" \"main\" {\n  name = \"spring-cluster\"\n}\n\nresource \"aws_ecs_task_definition\" \"app\" {\n  family                   = \"spring-app\"\n  network_mode             = \"awsvpc\"\n  requires_compatibilities = [\"FARGATE\"]\n  cpu                      = \"512\"\n  memory                   = \"1024\"\n  \n  container_definitions = jsonencode([{\n    name      = \"app\"\n    image     = \"myregistry/spring-app:latest\"\n    essential = true\n    portMappings = [{ containerPort = 8080, protocol = \"tcp\" }]\n    environment = [\n      { name = \"SPRING_PROFILES_ACTIVE\", value = \"prod\" },\n      { name = \"DATABASE_URL\", value = \"jdbc:postgresql://...\" }\n    ]\n  }])\n}\n\nresource \"aws_ecs_service\" \"app\" {\n  name            = \"spring-app-service\"\n  cluster         = aws_ecs_cluster.main.id\n  task_definition = aws_ecs_task_definition.app.arn\n  desired_count   = 2\n  launch_type     = \"FARGATE\"\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"IaC viết tắt của?",options:["Infrastructure as Code","Integration as Code","Interface as Code","Infrastructure as Configuration"],answer:0,explanation:"Infrastructure as Code — quản lý hạ tầng bằng code."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Lệnh Terraform tạo resources?",options:["terraform init","terraform plan","terraform apply","terraform destroy"],answer:2,explanation:"terraform apply — thực thi và tạo resources."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Xem preview thay đổi: <code>terraform ___</code>",expectedKeywords:["plan","plan\n"],explanation:"terraform plan — xem thay đổi trước khi apply (dry-run)."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Terraform state file nên commit lên Git?",answer:false,explanation:"State file chứa secrets và mapping resources — nên lưu ở remote backend (S3, Terraform Cloud)."}
+        ]
+      },
+      // --- Monitoring & Observability ---
+      {
+        id:"p10-monitoring",title:"Monitoring & Observability",
+        sources:[
+          {name:"Prometheus Docs",url:"https://prometheus.io/docs/introduction/overview/"},
+          {name:"Grafana Docs",url:"https://grafana.com/docs/grafana/latest/"},
+          {name:"Baeldung — Spring Boot Monitoring",url:"https://www.baeldung.com/spring-boot-monitoring"}
+        ],
+        lesson:[
+          {type:"p",text:"<b>3 trụ cột của Observability:</b>"},
+          {type:"ul",items:[
+            "<b>Logs</b>: thông tin chi tiết về sự kiện — ELK Stack (Elasticsearch, Logstash, Kibana).",
+            "<b>Metrics</b>: số liệu định lượng — Prometheus + Grafana.",
+            "<b>Traces</b>: theo dõi request qua nhiều service — Jaeger/Zipkin (Distributed Tracing)."
+          ]},
+          {type:"p",text:"<b>Prometheus + Grafana với Spring Boot:</b>"},
+          {type:"code",text:"# application.yml — Prometheus metrics\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health,info,metrics,prometheus\n  metrics:\n    tags:\n      application: ${spring.application.name}\n\n# Docker Compose cho monitoring\nservices:\n  prometheus:\n    image: prom/prometheus:latest\n    volumes:\n      - ./prometheus.yml:/etc/prometheus/prometheus.yml\n    ports:\n      - \"9090:9090\"\n  \n  grafana:\n    image: grafana/grafana:latest\n    ports:\n      - \"3000:3000\"\n    depends_on:\n      - prometheus\n  \n  jaeger:\n    image: jaegertracing/all-in-one:latest\n    ports:\n      - \"16686:16686\"  # UI\n      - \"4318:4318\"    # OTLP HTTP\n\n# prometheus.yml\nscrape_configs:\n  - job_name: 'spring-app'\n    metrics_path: '/actuator/prometheus'\n    static_configs:\n      - targets: ['app:8080']"},
+          {type:"code",text:"// Custom metrics với Micrometer\nimport io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.Counter;\n\n@Service\npublic class OrderMetricsService {\n    private final Counter orderCreatedCounter;\n    \n    public OrderMetricsService(MeterRegistry registry) {\n        this.orderCreatedCounter = Counter.builder(\"orders.created\")\n            .description(\"Total orders created\")\n            .tag(\"currency\", \"USD\")\n            .register(registry);\n    }\n    \n    public void recordOrder(Order order) {\n        orderCreatedCounter.increment();\n        // ...\n    }\n}"}
+        ],
+        exercises:[
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"3 trụ cột của Observability?",options:["CPU, Memory, Disk","Logs, Metrics, Traces","Build, Test, Deploy","Dev, Staging, Prod"],answer:1,explanation:"Logs (cụ thể), Metrics (định lượng), Traces (distributed tracing)."},
+          {type:"mcq",difficulty:"basic",badge:"Lý thuyết",question:"Prometheus + Grafana dùng cho gì?",options:["Logging","Metrics & visualization","Distributed tracing","Alerting"],answer:1,explanation:"Prometheus thu thập metrics, Grafana vẽ dashboard."},
+          {type:"mcq",difficulty:"intermediate",badge:"Lý thuyết",question:"Distributed tracing tool nào của Jaeger?",options:["Kibana","Zipkin","Prometheus","Grafana"],answer:1,explanation:"Zipkin và Jaeger đều là distributed tracing tools (Jaeger phổ biến hơn)."},
+          {type:"fill",difficulty:"basic",badge:"Điền khuyết",question:"Spring Boot Prometheus endpoint: <code>/actuator/___</code>",expectedKeywords:["prometheus","prometheus\n"],explanation:"/actuator/prometheus — metrics format Prometheus."},
+          {type:"truefalse",difficulty:"intermediate",badge:"Đúng/Sai",question:"Micrometer dùng để tạo custom metrics trong Spring Boot?",answer:true,explanation:"Micrometer là facade — tạo custom metrics, tự động expose qua Prometheus."}
         ]
       }
     ]
